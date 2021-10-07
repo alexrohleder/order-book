@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [orders, setOrders] = useState({
-    bids: {},
-    asks: {},
+    bids: { priceOrder: [], totals: {}, sizesByPrice: {} },
+    asks: { priceOrder: [], totals: {}, sizesByPrice: {} },
   });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function Home() {
       const data = JSON.parse(event.data);
 
       setOrders((state) => {
-        let mutable = { ...state };
+        let mutable = state;
 
         const patch = (prop, tuples) => {
           for (const [price, size] of tuples) {
@@ -31,14 +31,31 @@ export default function Home() {
               mutable = {
                 ...mutable,
                 [prop]: {
-                  ...mutable[prop],
-                  [price]: size,
+                  sizesByPrice: {
+                    ...mutable[prop].sizesByPrice,
+                    [price]: size,
+                  },
                 },
               };
             } else {
-              delete mutable[prop][price];
+              delete mutable[prop].sizesByPrice[price];
             }
           }
+
+          mutable[prop].priceOrder = Object.keys(mutable[prop].sizesByPrice)
+            .map(Number)
+            .sort();
+
+          const totals = {};
+          let totalsAcc = 0;
+
+          for (const index in mutable[prop].priceOrder) {
+            const price = mutable[prop].priceOrder[index];
+            totalsAcc += mutable[prop].sizesByPrice[price];
+            totals[price] = totalsAcc;
+          }
+
+          mutable[prop].totals = totals;
         };
 
         if (data.bids) {
@@ -58,10 +75,19 @@ export default function Home() {
     };
   }, []);
 
+  const build = (what) =>
+    what.priceOrder.map((price) => (
+      <div className="flex text-right" key={price}>
+        <div className="w-24">{what.totals[price]}</div>
+        <div className="w-24">{what.sizesByPrice[price]}</div>
+        <div className="w-24">{price.toFixed(2)}</div>
+      </div>
+    ));
+
   return (
     <div className="container mx-auto my-12 grid grid-cols-2">
-      <pre>{JSON.stringify(orders.bids, null, 4)}</pre>
-      <pre>{JSON.stringify(orders.asks, null, 4)}</pre>
+      {build(orders.bids)}
+      {build(orders.asks)}
     </div>
   );
 }
