@@ -36,7 +36,8 @@
     "typescript": "^4.4.3"
   },
   "lint-staged": {
-    "**/*": "yarn format"
+    "**/*": "yarn format",
+    "**/*.{ts,tsx}": "yarn tsc --noEmit --jsx preserve --esModuleInterop"
   },
   "simple-git-hooks": {
     "pre-commit": "yarn lint-staged"
