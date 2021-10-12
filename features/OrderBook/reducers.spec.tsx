@@ -109,4 +109,47 @@ describe("In the OrderBook reducers", () => {
       });
     });
   });
+
+  describe("The switchProductId reducer", () => {
+    it("should switch from PI_XBTUSD to PI_ETHUSD", () => {
+      const state = createMutableState({
+        productId: "PI_XBTUSD",
+      });
+
+      expect(reducer(state, { type: "switchProductId" })).toStrictEqual({
+        ...state,
+        productId: "PI_ETHUSD",
+      });
+    });
+
+    it("should switch from PI_ETHUSD to PI_XBTUSD", () => {
+      const state = createMutableState({
+        productId: "PI_ETHUSD",
+      });
+
+      expect(reducer(state, { type: "switchProductId" })).toStrictEqual({
+        ...state,
+        productId: "PI_XBTUSD",
+      });
+    });
+
+    it("should erase bids and asks", () => {
+      const state = createMutableState({
+        bids: { 1000: 100 },
+        asks: { 2000: 200 },
+        productId: "PI_XBTUSD",
+      });
+
+      expect(
+        reducer(state, {
+          type: "switchProductId",
+        })
+      ).toStrictEqual({
+        ...state,
+        bids: {},
+        asks: {},
+        productId: "PI_ETHUSD",
+      });
+    });
+  });
 });

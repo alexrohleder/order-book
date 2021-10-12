@@ -3,6 +3,7 @@ import { createReducer } from "@reduxjs/toolkit";
 export const initialState = {
   bids: {},
   asks: {},
+  productId: "PI_XBTUSD",
 };
 
 const reducer = createReducer(initialState, {
@@ -19,6 +20,14 @@ const reducer = createReducer(initialState, {
 
     update("bids", action.payload.bids);
     update("asks", action.payload.asks);
+  },
+
+  switchProductId(state) {
+    state.productId =
+      state.productId === "PI_XBTUSD" ? "PI_ETHUSD" : "PI_XBTUSD";
+
+    state.bids = {};
+    state.asks = {};
   },
 });
 
