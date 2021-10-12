@@ -1,4 +1,5 @@
 import reducer, { initialState } from "./reducers";
+import { patchLevels, switchProductId } from "./reducers";
 
 const createMutableState = (partials = {}) => ({
   ...initialState,
@@ -11,13 +12,13 @@ describe("In the OrderBook reducers", () => {
       const state = createMutableState();
 
       expect(
-        reducer(state, {
-          type: "patchLevels",
-          payload: {
+        reducer(
+          state,
+          patchLevels({
             bids: [[1000, 100]],
             asks: [[2000, 200]],
-          },
-        })
+          })
+        )
       ).toStrictEqual({
         ...state,
         bids: { 1000: 100 },
@@ -32,13 +33,13 @@ describe("In the OrderBook reducers", () => {
       });
 
       expect(
-        reducer(state, {
-          type: "patchLevels",
-          payload: {
+        reducer(
+          state,
+          patchLevels({
             bids: [[3000, 300]],
             asks: [[4000, 400]],
-          },
-        })
+          })
+        )
       ).toStrictEqual({
         ...state,
         bids: { 1000: 100, 3000: 300 },
@@ -53,13 +54,13 @@ describe("In the OrderBook reducers", () => {
       });
 
       expect(
-        reducer(state, {
-          type: "patchLevels",
-          payload: {
+        reducer(
+          state,
+          patchLevels({
             bids: [[1000, 150]],
             asks: [[2000, 250]],
-          },
-        })
+          })
+        )
       ).toStrictEqual({
         ...state,
         bids: { 1000: 150 },
@@ -74,13 +75,13 @@ describe("In the OrderBook reducers", () => {
       });
 
       expect(
-        reducer(state, {
-          type: "patchLevels",
-          payload: {
+        reducer(
+          state,
+          patchLevels({
             bids: [[1000, 0]],
             asks: [[2000, 0]],
-          },
-        })
+          })
+        )
       ).toStrictEqual({
         ...state,
         bids: {},
@@ -95,13 +96,13 @@ describe("In the OrderBook reducers", () => {
       });
 
       expect(
-        reducer(state, {
-          type: "patchLevels",
-          payload: {
+        reducer(
+          state,
+          patchLevels({
             bids: [],
             asks: [],
-          },
-        })
+          })
+        )
       ).toStrictEqual({
         ...state,
         bids: { 1000: 100 },
@@ -116,7 +117,7 @@ describe("In the OrderBook reducers", () => {
         productId: "PI_XBTUSD",
       });
 
-      expect(reducer(state, { type: "switchProductId" })).toStrictEqual({
+      expect(reducer(state, switchProductId())).toStrictEqual({
         ...state,
         productId: "PI_ETHUSD",
       });
@@ -127,7 +128,7 @@ describe("In the OrderBook reducers", () => {
         productId: "PI_ETHUSD",
       });
 
-      expect(reducer(state, { type: "switchProductId" })).toStrictEqual({
+      expect(reducer(state, switchProductId())).toStrictEqual({
         ...state,
         productId: "PI_XBTUSD",
       });
@@ -140,11 +141,7 @@ describe("In the OrderBook reducers", () => {
         productId: "PI_XBTUSD",
       });
 
-      expect(
-        reducer(state, {
-          type: "switchProductId",
-        })
-      ).toStrictEqual({
+      expect(reducer(state, switchProductId())).toStrictEqual({
         ...state,
         bids: {},
         asks: {},
