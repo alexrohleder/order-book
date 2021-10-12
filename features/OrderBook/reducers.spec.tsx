@@ -1,7 +1,8 @@
 import reducer, { initialState } from "./reducers";
 import { patchLevels, switchProductId } from "./reducers";
+import { State } from "./types";
 
-const createMutableState = (partials = {}) => ({
+const createMutableState = (partials: Partial<State> = {}) => ({
   ...initialState,
   ...partials,
 });
