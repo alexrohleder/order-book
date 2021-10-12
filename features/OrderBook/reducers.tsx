@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Delta, State } from "./types";
 
 export const initialState: State = {
-  bids: {},
-  asks: {},
+  bids: [],
+  asks: [],
   productId: "PI_XBTUSD",
 };
 
@@ -15,26 +15,48 @@ const orderBook = createSlice({
       state,
       action: PayloadAction<{ asks: Delta[]; bids: Delta[] }>
     ) {
-      function update(type: "bids" | "asks") {
+      function patch(type: "bids" | "asks") {
         for (const [price, size] of action.payload[type]) {
-          state[type][price] = size;
+          let lowestIndex = 0;
+          let highestIndex = state[type].length;
 
-          if (size === 0) {
-            delete state[type][price];
+          let deleteCount = 0;
+          let newElement: Delta = [price, size];
+
+          while (lowestIndex < highestIndex) {
+            const midIndex = (lowestIndex + highestIndex) >>> 1;
+            const currentPrice = state[type][midIndex][0];
+
+            if (price === currentPrice) {
+              deleteCount = 1;
+              break;
+            }
+
+            if (currentPrice < price) {
+              lowestIndex = midIndex + 1;
+            } else {
+              highestIndex = midIndex;
+            }
+          }
+
+          if (size > 0) {
+            state[type].splice(lowestIndex, deleteCount, newElement);
+          } else {
+            state[type].splice(lowestIndex, 1);
           }
         }
       }
 
-      update("bids");
-      update("asks");
+      patch("bids");
+      patch("asks");
     },
 
     switchProductId(state) {
       state.productId =
         state.productId === "PI_XBTUSD" ? "PI_ETHUSD" : "PI_XBTUSD";
 
-      state.bids = {};
-      state.asks = {};
+      state.bids = [];
+      state.asks = [];
     },
   },
 });
