@@ -65,6 +65,11 @@ const orderBook = createSlice({
     connectedSocket(state) {
       state.socketState = "CONNECTED";
     },
+
+    resetDeltas(state) {
+      state.bids = [];
+      state.asks = [];
+    },
   },
 });
 
@@ -74,6 +79,7 @@ export const {
   disconnectedSocket,
   connectingSocket,
   connectedSocket,
+  resetDeltas,
 } = orderBook.actions;
 
 export default orderBook.reducer;

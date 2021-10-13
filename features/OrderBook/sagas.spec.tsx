@@ -1,8 +1,15 @@
 import { expectSaga, testSaga } from "redux-saga-test-plan";
 import { createSocketChannel } from "./channels";
-import reducers, { receivedDeltas, connectingSocket } from "./reducers";
+import reducers, {
+  receivedDeltas,
+  connectingSocket,
+  switchedProducts,
+  disconnectedSocket,
+  resetDeltas,
+} from "./reducers";
 import rootSaga, {
   awaitForNextBatch,
+  handleProductChange,
   handleSocketMessages,
   watchSocket,
 } from "./sagas";
@@ -15,6 +22,13 @@ describe("In the OrderBook sagas", () => {
       return expectSaga(rootSaga)
         .withReducer(reducers)
         .fork(watchSocket)
+        .silentRun();
+    });
+
+    it("should watch for changes on product and call a side-effect", () => {
+      return expectSaga(rootSaga)
+        .withReducer(reducers)
+        .take(switchedProducts.type)
         .silentRun();
     });
 
@@ -106,6 +120,24 @@ describe("In the OrderBook sagas", () => {
       testSaga(awaitForNextBatch, performance.now() - 100)
         .next()
         .delay(250);
+    });
+  });
+
+  describe("The handleProductChange", () => {
+    it("should reset socket connection", () => {
+      return expectSaga(handleProductChange)
+        .withReducer(reducers)
+        .putResolve(disconnectedSocket())
+        .putResolve(connectingSocket())
+        .silentRun();
+    });
+
+    it("should reset deltas before re-connecting", () => {
+      return expectSaga(handleProductChange)
+        .withReducer(reducers)
+        .putResolve(resetDeltas())
+        .putResolve(connectingSocket())
+        .silentRun();
     });
   });
 });

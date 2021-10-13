@@ -1,5 +1,9 @@
 import useStore from "../hooks/useStore";
-import { connectingSocket, disconnectedSocket } from "../reducers";
+import {
+  connectingSocket,
+  disconnectedSocket,
+  switchedProducts,
+} from "../reducers";
 
 function OrderBook() {
   const store = useStore();
@@ -11,6 +15,9 @@ function OrderBook() {
       </button>
       <button onClick={() => store.dispatch(connectingSocket())}>
         connecting
+      </button>
+      <button onClick={() => store.dispatch(switchedProducts())}>
+        switch product
       </button>
     </div>
   );

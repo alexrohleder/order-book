@@ -9,12 +9,15 @@ import {
   call,
   take,
   cancel,
+  takeEvery,
 } from "@redux-saga/core/effects";
 import { createSocketChannel, SocketEvent } from "./channels";
 import {
   connectingSocket,
   disconnectedSocket,
   receivedDeltas,
+  resetDeltas,
+  switchedProducts,
 } from "./reducers";
 import { SocketMessage, State } from "./types";
 
@@ -73,8 +76,15 @@ export function* watchSocket() {
   }
 }
 
+export function* handleProductChange() {
+  yield putResolve(disconnectedSocket());
+  yield putResolve(resetDeltas());
+  yield putResolve(connectingSocket());
+}
+
 function* rootSaga() {
   yield fork(watchSocket);
+  yield takeEvery(switchedProducts.type, handleProductChange);
   yield put(connectingSocket());
 }
 
