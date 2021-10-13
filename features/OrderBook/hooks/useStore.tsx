@@ -3,7 +3,7 @@ import createSagaMiddleware from "redux-saga";
 import { useEffect, useMemo } from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import reducer from "../reducers";
-import rootSaga from "../saga";
+import rootSaga from "../sagas";
 
 // We use this as a hook so we can tear down the sagas when OrderBook is unmounted.
 // Notice that the middleware is only created in the client, to avoid SSR socket messages.

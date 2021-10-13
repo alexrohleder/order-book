@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Delta, State } from "./types";
+import { Delta, SocketState, State } from "./types";
 
 export const initialState: State = {
   bids: [],
   asks: [],
   productId: "PI_XBTUSD",
+  socketState: "DISCONNECTED",
 };
 
 const orderBook = createSlice({
@@ -58,9 +59,14 @@ const orderBook = createSlice({
       state.bids = [];
       state.asks = [];
     },
+
+    setSocketState(state, action: PayloadAction<SocketState>) {
+      state.socketState = action.payload;
+    },
   },
 });
 
-export const { patchLevels, switchProductId } = orderBook.actions;
+export const { patchLevels, switchProductId, setSocketState } =
+  orderBook.actions;
 
 export default orderBook.reducer;

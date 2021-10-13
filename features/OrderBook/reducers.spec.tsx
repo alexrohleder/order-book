@@ -1,16 +1,12 @@
-import reducer, { initialState } from "./reducers";
+import reducer, { setSocketState } from "./reducers";
 import { patchLevels, switchProductId } from "./reducers";
 import { State } from "./types";
-
-const createMutableState = (partials: Partial<State> = {}) => ({
-  ...initialState,
-  ...partials,
-});
+import mockState from "./__mocks__/mockState";
 
 describe("In the OrderBook reducers", () => {
   describe("The patchLevels reducer", () => {
     it("should add initial levels", () => {
-      const state = createMutableState();
+      const state = mockState();
 
       expect(
         reducer(
@@ -28,7 +24,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should add levels by ascending price order", () => {
-      const state = createMutableState({
+      const state = mockState({
         bids: [[1000, 100]],
         asks: [[2000, 200]],
       });
@@ -65,7 +61,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should update levels", () => {
-      const state = createMutableState({
+      const state = mockState({
         bids: [[1000, 100]],
         asks: [[2000, 200]],
       });
@@ -86,7 +82,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should remove levels when it's size is 0", () => {
-      const state = createMutableState({
+      const state = mockState({
         bids: [[1000, 100]],
         asks: [[2000, 200]],
       });
@@ -107,7 +103,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should not remove levels when they are omitted", () => {
-      const state = createMutableState({
+      const state = mockState({
         bids: [[1000, 100]],
         asks: [[2000, 200]],
       });
@@ -130,7 +126,7 @@ describe("In the OrderBook reducers", () => {
 
   describe("The switchProductId reducer", () => {
     it("should switch from PI_XBTUSD to PI_ETHUSD", () => {
-      const state = createMutableState({
+      const state = mockState({
         productId: "PI_XBTUSD",
       });
 
@@ -141,7 +137,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should switch from PI_ETHUSD to PI_XBTUSD", () => {
-      const state = createMutableState({
+      const state = mockState({
         productId: "PI_ETHUSD",
       });
 
@@ -152,7 +148,7 @@ describe("In the OrderBook reducers", () => {
     });
 
     it("should erase bids and asks", () => {
-      const state = createMutableState({
+      const state = mockState({
         bids: [[1000, 100]],
         asks: [[2000, 200]],
         productId: "PI_XBTUSD",
@@ -163,6 +159,40 @@ describe("In the OrderBook reducers", () => {
         bids: [],
         asks: [],
         productId: "PI_ETHUSD",
+      });
+    });
+  });
+
+  describe("The setSocketState reducer", () => {
+    it("should transition the socket state from DISCONNECTED to CONNECTING", () => {
+      const state = mockState({ socketState: "DISCONNECTED" });
+
+      expect(reducer(state, setSocketState("CONNECTING"))).toStrictEqual<State>(
+        {
+          ...state,
+          socketState: "CONNECTING",
+        }
+      );
+    });
+
+    it("should transition the socket state from CONNECTING to CONNECTED", () => {
+      const state = mockState({ socketState: "CONNECTED" });
+
+      expect(
+        reducer(state, setSocketState("DISCONNECTED"))
+      ).toStrictEqual<State>({
+        ...state,
+        socketState: "DISCONNECTED",
+      });
+    });
+    it("should transition the socket state from CONNECTED to DISCONNECTED", () => {
+      const state = mockState({ socketState: "CONNECTED" });
+
+      expect(
+        reducer(state, setSocketState("DISCONNECTED"))
+      ).toStrictEqual<State>({
+        ...state,
+        socketState: "DISCONNECTED",
       });
     });
   });

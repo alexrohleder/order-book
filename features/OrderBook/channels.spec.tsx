@@ -1,7 +1,5 @@
 import { END } from "@redux-saga/core";
-import { take } from "@redux-saga/core/effects";
 import WS from "jest-websocket-mock";
-import { expectSaga } from "redux-saga-test-plan";
 import { createSocketChannel } from "./channels";
 
 describe("In the OrderBook channels", () => {
