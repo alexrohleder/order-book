@@ -10,4 +10,8 @@
 
     @apply bg-red-600 hover:bg-red-800 focus:ring-red-600;
   }
+
+  .btn--purple {
+    @apply bg-purple-600 hover:bg-purple-800 focus:ring-purple-600;
+  }
 }

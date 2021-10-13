@@ -1,6 +1,6 @@
 import { Middleware, StoreEnhancer } from "redux";
 import createSagaMiddleware from "redux-saga";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import reducer from "../reducers";
 import rootSaga from "../sagas";
@@ -8,12 +8,14 @@ import rootSaga from "../sagas";
 // We use this as a hook so we can tear down the sagas when OrderBook is unmounted.
 // Notice that the middleware is only created in the client, to avoid SSR socket messages.
 function useStoreSaga() {
+  const [error, setError] = useState<any>(null);
+
   const middleware = useMemo(
     () =>
       typeof window === "object"
         ? createSagaMiddleware({
             onError(error, errorInfo) {
-              console.error(error, errorInfo);
+              setError({ error, errorInfo });
             },
           })
         : null,
@@ -27,6 +29,12 @@ function useStoreSaga() {
       return () => task.cancel();
     }
   }, [middleware]);
+
+  if (error) {
+    // This converts the saga middleware uncaught errors into a component error.
+    // We do so to have the error boundary triggered.
+    throw error;
+  }
 
   return middleware;
 }

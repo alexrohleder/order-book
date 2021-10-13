@@ -1,5 +1,7 @@
 import { createSocketChannel } from "./channels";
 
+export type Orientation = "VERTICAL" | "HORIZONTAL";
+
 export type ProductId = "PI_XBTUSD" | "PI_ETHUSD";
 
 export type SocketState = "DISCONNECTED" | "CONNECTING" | "CONNECTED";
