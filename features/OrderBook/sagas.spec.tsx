@@ -1,6 +1,6 @@
 import { expectSaga, testSaga } from "redux-saga-test-plan";
 import { createSocketChannel } from "./channels";
-import reducers, { patchLevels, setSocketState } from "./reducers";
+import reducers, { receivedDeltas, connectingSocket } from "./reducers";
 import rootSaga, {
   awaitForNextBatch,
   handleSocket,
@@ -21,7 +21,7 @@ describe("In the OrderBook sagas", () => {
     it("should initialize the socket connection", () => {
       return expectSaga(rootSaga)
         .withReducer(reducers)
-        .put(setSocketState("CONNECTING"))
+        .put(connectingSocket())
         .silentRun();
     });
   });
@@ -53,7 +53,7 @@ describe("In the OrderBook sagas", () => {
 
       return expectSaga(handleSocketMessages, channel)
         .withReducer(reducers)
-        .putResolve(patchLevels({ bids: [[1000, 100]], asks: [] }))
+        .putResolve(receivedDeltas({ bids: [[1000, 100]], asks: [] }))
         .silentRun();
     });
 
@@ -72,7 +72,7 @@ describe("In the OrderBook sagas", () => {
       return expectSaga(handleSocketMessages, channel)
         .withReducer(reducers)
         .putResolve(
-          patchLevels({
+          receivedDeltas({
             bids: [
               [1000, 100],
               [2000, 200],

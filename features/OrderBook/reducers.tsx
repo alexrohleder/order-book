@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Delta, SocketState, State } from "./types";
+import { Delta, SocketMessage, State } from "./types";
 
 export const initialState: State = {
   bids: [],
@@ -12,10 +12,7 @@ const orderBook = createSlice({
   name: "OrderBook",
   initialState,
   reducers: {
-    patchLevels(
-      state,
-      action: PayloadAction<{ asks: Delta[]; bids: Delta[] }>
-    ) {
+    receivedDeltas(state, action: PayloadAction<SocketMessage>) {
       function patch(type: "bids" | "asks") {
         for (const [price, size] of action.payload[type]) {
           let lowestIndex = 0;
@@ -52,21 +49,31 @@ const orderBook = createSlice({
       patch("asks");
     },
 
-    switchProductId(state) {
+    switchedProducts(state) {
       state.productId =
         state.productId === "PI_XBTUSD" ? "PI_ETHUSD" : "PI_XBTUSD";
-
-      state.bids = [];
-      state.asks = [];
     },
 
-    setSocketState(state, action: PayloadAction<SocketState>) {
-      state.socketState = action.payload;
+    disconnectedSocket(state) {
+      state.socketState = "DISCONNECTED";
+    },
+
+    connectingSocket(state) {
+      state.socketState = "CONNECTING";
+    },
+
+    connectedSocket(state) {
+      state.socketState = "CONNECTED";
     },
   },
 });
 
-export const { patchLevels, switchProductId, setSocketState } =
-  orderBook.actions;
+export const {
+  receivedDeltas,
+  switchedProducts,
+  disconnectedSocket,
+  connectingSocket,
+  connectedSocket,
+} = orderBook.actions;
 
 export default orderBook.reducer;

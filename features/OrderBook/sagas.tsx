@@ -9,7 +9,7 @@ import {
   call,
 } from "@redux-saga/core/effects";
 import { createSocketChannel, SocketEvent } from "./channels";
-import { patchLevels, setSocketState } from "./reducers";
+import { connectingSocket, receivedDeltas } from "./reducers";
 import { SocketMessage, State } from "./types";
 
 export function* handleSocket() {
@@ -25,7 +25,7 @@ export function* handleSocketMessages(channel: EventChannel<SocketEvent>) {
     const startedExecutingAt = performance.now();
 
     if (events) {
-      const patches = events.reduce(
+      const deltas = events.reduce(
         (patch, event) => {
           if (event.type === "message") {
             patch.bids.push(...event.payload.bids);
@@ -37,8 +37,8 @@ export function* handleSocketMessages(channel: EventChannel<SocketEvent>) {
         { bids: [], asks: [] } as SocketMessage
       );
 
-      if (patches.bids.length || patches.asks.length) {
-        yield putResolve(patchLevels(patches));
+      if (deltas.bids.length || deltas.asks.length) {
+        yield putResolve(receivedDeltas(deltas));
       }
     }
 
@@ -56,7 +56,7 @@ export function* awaitForNextBatch(startedExecutingBatchAt: number) {
 
 function* rootSaga() {
   yield fork(handleSocket);
-  yield put(setSocketState("CONNECTING"));
+  yield put(connectingSocket());
 }
 
 export default rootSaga;

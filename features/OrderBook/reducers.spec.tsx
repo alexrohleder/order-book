@@ -1,17 +1,16 @@
-import reducer, { setSocketState } from "./reducers";
-import { patchLevels, switchProductId } from "./reducers";
+import reducer, { receivedDeltas, switchedProducts } from "./reducers";
 import { State } from "./types";
 import mockState from "./__mocks__/mockState";
 
 describe("In the OrderBook reducers", () => {
-  describe("The patchLevels reducer", () => {
+  describe("The receivedDeltas reducer", () => {
     it("should add initial levels", () => {
       const state = mockState();
 
       expect(
         reducer(
           state,
-          patchLevels({
+          receivedDeltas({
             bids: [[1000, 100]],
             asks: [[2000, 200]],
           })
@@ -32,7 +31,7 @@ describe("In the OrderBook reducers", () => {
       expect(
         reducer(
           state,
-          patchLevels({
+          receivedDeltas({
             bids: [
               [5000, 50],
               [3000, 300],
@@ -69,7 +68,7 @@ describe("In the OrderBook reducers", () => {
       expect(
         reducer(
           state,
-          patchLevels({
+          receivedDeltas({
             bids: [[1000, 150]],
             asks: [[2000, 250]],
           })
@@ -90,7 +89,7 @@ describe("In the OrderBook reducers", () => {
       expect(
         reducer(
           state,
-          patchLevels({
+          receivedDeltas({
             bids: [[1000, 0]],
             asks: [[2000, 0]],
           })
@@ -111,7 +110,7 @@ describe("In the OrderBook reducers", () => {
       expect(
         reducer(
           state,
-          patchLevels({
+          receivedDeltas({
             bids: [],
             asks: [],
           })
@@ -124,13 +123,13 @@ describe("In the OrderBook reducers", () => {
     });
   });
 
-  describe("The switchProductId reducer", () => {
+  describe("The switchedProducts reducer", () => {
     it("should switch from PI_XBTUSD to PI_ETHUSD", () => {
       const state = mockState({
         productId: "PI_XBTUSD",
       });
 
-      expect(reducer(state, switchProductId())).toStrictEqual<State>({
+      expect(reducer(state, switchedProducts())).toStrictEqual<State>({
         ...state,
         productId: "PI_ETHUSD",
       });
@@ -141,58 +140,9 @@ describe("In the OrderBook reducers", () => {
         productId: "PI_ETHUSD",
       });
 
-      expect(reducer(state, switchProductId())).toStrictEqual<State>({
+      expect(reducer(state, switchedProducts())).toStrictEqual<State>({
         ...state,
         productId: "PI_XBTUSD",
-      });
-    });
-
-    it("should erase bids and asks", () => {
-      const state = mockState({
-        bids: [[1000, 100]],
-        asks: [[2000, 200]],
-        productId: "PI_XBTUSD",
-      });
-
-      expect(reducer(state, switchProductId())).toStrictEqual<State>({
-        ...state,
-        bids: [],
-        asks: [],
-        productId: "PI_ETHUSD",
-      });
-    });
-  });
-
-  describe("The setSocketState reducer", () => {
-    it("should transition the socket state from DISCONNECTED to CONNECTING", () => {
-      const state = mockState({ socketState: "DISCONNECTED" });
-
-      expect(reducer(state, setSocketState("CONNECTING"))).toStrictEqual<State>(
-        {
-          ...state,
-          socketState: "CONNECTING",
-        }
-      );
-    });
-
-    it("should transition the socket state from CONNECTING to CONNECTED", () => {
-      const state = mockState({ socketState: "CONNECTED" });
-
-      expect(
-        reducer(state, setSocketState("DISCONNECTED"))
-      ).toStrictEqual<State>({
-        ...state,
-        socketState: "DISCONNECTED",
-      });
-    });
-    it("should transition the socket state from CONNECTED to DISCONNECTED", () => {
-      const state = mockState({ socketState: "CONNECTED" });
-
-      expect(
-        reducer(state, setSocketState("DISCONNECTED"))
-      ).toStrictEqual<State>({
-        ...state,
-        socketState: "DISCONNECTED",
       });
     });
   });
