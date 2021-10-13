@@ -1,4 +1,4 @@
-import { EventChannel } from "@redux-saga/core";
+import { Task, END, EventChannel } from "@redux-saga/core";
 import {
   select,
   put,
@@ -7,24 +7,31 @@ import {
   delay,
   putResolve,
   call,
+  take,
+  cancel,
 } from "@redux-saga/core/effects";
 import { createSocketChannel, SocketEvent } from "./channels";
-import { connectingSocket, receivedDeltas } from "./reducers";
+import {
+  connectingSocket,
+  disconnectedSocket,
+  receivedDeltas,
+} from "./reducers";
 import { SocketMessage, State } from "./types";
 
-export function* handleSocket() {
-  const productId = yield select((state: State) => state.productId);
-  const channel = yield call(createSocketChannel, productId);
+export function* awaitForNextBatch(startedExecutingBatchAt: number) {
+  // these are opionated numbers based on runs with CPU throttling
+  const lastExecutionTime = performance.now() - startedExecutingBatchAt;
+  const ms = lastExecutionTime < 30 ? 50 : 250;
 
-  yield fork(handleSocketMessages, channel);
+  yield delay(ms);
 }
 
 export function* handleSocketMessages(channel: EventChannel<SocketEvent>) {
   while (true) {
-    const events: SocketEvent[] | undefined = yield flush(channel);
+    const events: SocketEvent[] | END = yield flush(channel);
     const startedExecutingAt = performance.now();
 
-    if (events) {
+    if (Array.isArray(events)) {
       const deltas = events.reduce(
         (patch, event) => {
           if (event.type === "message") {
@@ -46,16 +53,28 @@ export function* handleSocketMessages(channel: EventChannel<SocketEvent>) {
   }
 }
 
-export function* awaitForNextBatch(startedExecutingBatchAt: number) {
-  // these are opionated numbers based on runs with CPU throttling
-  const lastExecutionTime = performance.now() - startedExecutingBatchAt;
-  const ms = lastExecutionTime < 30 ? 50 : 250;
+export function* watchSocket() {
+  let task: Task | null = null;
+  let socketChannel: ReturnType<typeof createSocketChannel> | null = null;
 
-  yield delay(ms);
+  try {
+    while (true) {
+      yield take(connectingSocket.type);
+      const productId = yield select((state: State) => state.productId);
+      socketChannel = yield call(createSocketChannel, productId);
+      task = yield fork(handleSocketMessages, socketChannel!);
+      yield take(disconnectedSocket.type);
+      yield call(task!.cancel);
+      yield call(socketChannel!.close);
+    }
+  } finally {
+    task?.cancel();
+    socketChannel?.close();
+  }
 }
 
 function* rootSaga() {
-  yield fork(handleSocket);
+  yield fork(watchSocket);
   yield put(connectingSocket());
 }
 

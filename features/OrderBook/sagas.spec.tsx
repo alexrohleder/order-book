@@ -3,18 +3,18 @@ import { createSocketChannel } from "./channels";
 import reducers, { receivedDeltas, connectingSocket } from "./reducers";
 import rootSaga, {
   awaitForNextBatch,
-  handleSocket,
   handleSocketMessages,
+  watchSocket,
 } from "./sagas";
 import mockChannel from "./__mocks__/mockChannel";
 import mockState from "./__mocks__/mockState";
 
 describe("In the OrderBook sagas", () => {
   describe("The rootSaga", () => {
-    it("should initiate the socket handler", () => {
+    it("should initiate the socket watcher", () => {
       return expectSaga(rootSaga)
         .withReducer(reducers)
-        .fork(handleSocket)
+        .fork(watchSocket)
         .silentRun();
     });
 
@@ -26,17 +26,23 @@ describe("In the OrderBook sagas", () => {
     });
   });
 
-  describe("The handleSocket", () => {
+  describe("The watchSocket", () => {
+    it("should await for connectingSocket action to start", () => {
+      testSaga(watchSocket).next().take(connectingSocket.type);
+    });
+
     it("should create the socket channel", () => {
-      return expectSaga(handleSocket)
+      return expectSaga(watchSocket)
         .withReducer(reducers, mockState({ productId: "PI_ETHUSD" }))
+        .dispatch(connectingSocket())
         .call(createSocketChannel, "PI_ETHUSD")
         .silentRun();
     });
 
     it("should fork the socket message handler", () => {
-      return expectSaga(handleSocket)
+      return expectSaga(watchSocket)
         .withReducer(reducers)
+        .dispatch(connectingSocket())
         .fork.like({ fn: handleSocketMessages })
         .silentRun();
     });
