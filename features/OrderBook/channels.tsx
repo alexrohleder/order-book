@@ -1,7 +1,12 @@
 import { buffers, END, eventChannel } from "@redux-saga/core";
+import { SocketChannelError, SocketClosedByServer } from "./lib/errors";
 import { SocketMessage, ProductId } from "./types";
 
-export type SocketEvent = { type: "message"; payload: SocketMessage } | END;
+export type SocketEvent =
+  | { type: "connection-established"; payload: true }
+  | { type: "message"; payload: SocketMessage }
+  | SocketChannelError
+  | END;
 
 export function createSocketChannel(
   productId: ProductId,
@@ -11,6 +16,11 @@ export function createSocketChannel(
     const socket = createSocket();
 
     socket.addEventListener("open", () => {
+      emitter({
+        type: "connection-established",
+        payload: true,
+      });
+
       socket.send(
         JSON.stringify({
           event: "subscribe",
@@ -30,9 +40,7 @@ export function createSocketChannel(
     });
 
     socket.addEventListener("close", (event) => {
-      if (event.code) {
-        emitter(END); // code being available means this socket was closed by the server
-      }
+      emitter(new SocketClosedByServer());
     });
 
     return () => {

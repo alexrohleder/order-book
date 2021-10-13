@@ -1,6 +1,7 @@
 import { END } from "@redux-saga/core";
 import WS from "jest-websocket-mock";
 import { createSocketChannel } from "./channels";
+import { SocketClosedByServer } from "./lib/errors";
 
 describe("In the OrderBook channels", () => {
   describe("The SocketChannel", () => {
@@ -18,6 +19,20 @@ describe("In the OrderBook channels", () => {
 
     afterEach(() => {
       WS.clean();
+    });
+
+    it("should emit connection-established message on open", (done) => {
+      const channel = createSocketChannel("PI_XBTUSD", createSocket);
+      expect.assertions(1);
+
+      server.connected.then(() => {
+        channel.take((msg) =>
+          expect(msg).toMatchObject({
+            type: "connection-established",
+          })
+        );
+        done();
+      });
     });
 
     it("should send subscribe message on open", async () => {
@@ -63,7 +78,8 @@ describe("In the OrderBook channels", () => {
       expect.assertions(1);
 
       server.connected.then(() => {
-        channel.take((message) => expect(message).toBe(END));
+        channel.take((msg) => undefined); // skip connection-stabilished
+        channel.take((msg) => expect(msg).toBeInstanceOf(SocketClosedByServer));
         server.close();
         done();
       });
@@ -74,7 +90,8 @@ describe("In the OrderBook channels", () => {
       expect.assertions(1);
 
       server.connected.then(() => {
-        channel.take((message) => expect(message).toBe(END));
+        channel.take((msg) => undefined); // skip connection-stabilished
+        channel.take((msg) => expect(msg).toBeInstanceOf(SocketClosedByServer));
         server.error();
         done();
       });
@@ -85,8 +102,9 @@ describe("In the OrderBook channels", () => {
       expect.assertions(1);
 
       server.connected.then(() => {
-        channel.take((message) => {
-          expect(message).toMatchObject({
+        channel.take((msg) => undefined); // skip connection-stabilished
+        channel.take((msg) => {
+          expect(msg).toMatchObject({
             type: "message",
             payload: {
               bids: [[1000, 100]],

@@ -1,79 +1,81 @@
-import { Task, END, EventChannel } from "@redux-saga/core";
 import {
   select,
   put,
-  fork,
   flush,
-  delay,
   putResolve,
   call,
   take,
-  cancel,
   takeEvery,
+  delay,
 } from "@redux-saga/core/effects";
 import { createSocketChannel, SocketEvent } from "./channels";
 import {
+  connectedSocket,
   connectingSocket,
   disconnectedSocket,
   receivedDeltas,
   resetDeltas,
   switchedProducts,
 } from "./reducers";
-import { SocketMessage, State } from "./types";
+import { SagaContext, SocketMessage, State } from "./types";
 
-export function* awaitForNextBatch(startedExecutingBatchAt: number) {
-  // these are opionated numbers based on runs with CPU throttling
+export function* delayNextDispatch(startedExecutingBatchAt: number) {
   const lastExecutionTime = performance.now() - startedExecutingBatchAt;
-  const ms = lastExecutionTime < 30 ? 50 : 250;
-
-  yield delay(ms);
+  yield delay(lastExecutionTime < 30 ? 50 : 250);
 }
 
-export function* handleSocketMessages(channel: EventChannel<SocketEvent>) {
-  while (true) {
-    const events: SocketEvent[] | END = yield flush(channel);
-    const startedExecutingAt = performance.now();
+export function* handleConnectingSocket(ctx: SagaContext) {
+  try {
+    const productId = yield select((state: State) => state.productId);
 
-    if (Array.isArray(events)) {
-      const deltas = events.reduce(
-        (patch, event) => {
-          if (event.type === "message") {
-            patch.bids.push(...event.payload.bids);
-            patch.asks.push(...event.payload.asks);
-          }
-
-          return patch;
-        },
-        { bids: [], asks: [] } as SocketMessage
-      );
-
-      if (deltas.bids.length || deltas.asks.length) {
-        yield putResolve(receivedDeltas(deltas));
-      }
+    if (ctx.socketChannel === null) {
+      ctx.socketChannel = yield call(createSocketChannel, productId);
     }
 
-    yield call(awaitForNextBatch, startedExecutingAt);
+    const message: SocketEvent = yield take(ctx.socketChannel!);
+
+    if (message.type === "connection-established") {
+      yield put(connectedSocket());
+    }
+  } catch {
+    yield put(disconnectedSocket());
   }
 }
 
-export function* watchSocket() {
-  let task: Task | null = null;
-  let socketChannel: ReturnType<typeof createSocketChannel> | null = null;
-
+export function* handleConnectedSocket(ctx: SagaContext) {
   try {
     while (true) {
-      yield take(connectingSocket.type);
-      const productId = yield select((state: State) => state.productId);
-      socketChannel = yield call(createSocketChannel, productId);
-      task = yield fork(handleSocketMessages, socketChannel!);
-      yield take(disconnectedSocket.type);
-      yield call(task!.cancel);
-      yield call(socketChannel!.close);
+      const events = yield flush(ctx.socketChannel!);
+      const startedExecutingAt = performance.now();
+
+      if (Array.isArray(events)) {
+        const deltas = events.reduce(
+          (patch, event) => {
+            if (event.type === "message") {
+              patch.bids.push(...event.payload.bids);
+              patch.asks.push(...event.payload.asks);
+            }
+
+            return patch;
+          },
+          { bids: [], asks: [] } as SocketMessage
+        );
+
+        if (deltas.bids.length || deltas.asks.length) {
+          yield putResolve(receivedDeltas(deltas));
+        }
+      }
+
+      yield call(delayNextDispatch, startedExecutingAt);
     }
-  } finally {
-    task?.cancel();
-    socketChannel?.close();
+  } catch {
+    yield put(disconnectedSocket());
   }
+}
+
+export function* handleDisconnectedSocket(ctx: SagaContext) {
+  ctx.socketChannel?.close();
+  ctx.socketChannel = null;
 }
 
 export function* handleProductChange() {
@@ -83,8 +85,15 @@ export function* handleProductChange() {
 }
 
 function* rootSaga() {
-  yield fork(watchSocket);
+  const ctx: SagaContext = {
+    socketChannel: null,
+  };
+
+  yield takeEvery(connectingSocket.type, handleConnectingSocket, ctx);
+  yield takeEvery(connectedSocket.type, handleConnectedSocket, ctx);
+  yield takeEvery(disconnectedSocket.type, handleDisconnectedSocket, ctx);
   yield takeEvery(switchedProducts.type, handleProductChange);
+
   yield put(connectingSocket());
 }
 

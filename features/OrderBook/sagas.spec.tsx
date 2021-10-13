@@ -1,27 +1,33 @@
 import { expectSaga, testSaga } from "redux-saga-test-plan";
+import * as matchers from "redux-saga-test-plan/matchers";
 import { createSocketChannel } from "./channels";
+import { SocketClosedByServer } from "./lib/errors";
 import reducers, {
   receivedDeltas,
   connectingSocket,
   switchedProducts,
   disconnectedSocket,
   resetDeltas,
+  connectedSocket,
 } from "./reducers";
 import rootSaga, {
-  awaitForNextBatch,
+  delayNextDispatch,
   handleProductChange,
-  handleSocketMessages,
-  watchSocket,
+  handleConnectedSocket,
+  handleConnectingSocket,
 } from "./sagas";
 import mockChannel from "./__mocks__/mockChannel";
+import mockSagaContext from "./__mocks__/mockSagaContext";
 import mockState from "./__mocks__/mockState";
 
 describe("In the OrderBook sagas", () => {
   describe("The rootSaga", () => {
-    it("should initiate the socket watcher", () => {
+    it("should initiate the socket state watchers", () => {
       return expectSaga(rootSaga)
         .withReducer(reducers)
-        .fork(watchSocket)
+        .take(connectingSocket.type)
+        .take(connectedSocket.type)
+        .take(disconnectedSocket.type)
         .silentRun();
     });
 
@@ -40,56 +46,78 @@ describe("In the OrderBook sagas", () => {
     });
   });
 
-  describe("The watchSocket", () => {
-    it("should await for connectingSocket action to start", () => {
-      testSaga(watchSocket).next().take(connectingSocket.type);
-    });
+  describe("The handleConnectingSocket", () => {
+    it("should create the socket channel when the context one is null", () => {
+      const ctx = mockSagaContext({ socketChannel: null });
 
-    it("should create the socket channel", () => {
-      return expectSaga(watchSocket)
+      return expectSaga(handleConnectingSocket, ctx)
         .withReducer(reducers, mockState({ productId: "PI_ETHUSD" }))
         .dispatch(connectingSocket())
         .call(createSocketChannel, "PI_ETHUSD")
         .silentRun();
     });
 
-    it("should fork the socket message handler", () => {
-      return expectSaga(watchSocket)
+    it("should dispatch connectedSocket after connection established event", () => {
+      const ctx = mockSagaContext({
+        socketChannel: mockChannel([
+          {
+            type: "connection-established",
+            payload: true,
+          },
+        ]),
+      });
+
+      return expectSaga(handleConnectingSocket, ctx)
         .withReducer(reducers)
-        .dispatch(connectingSocket())
-        .fork.like({ fn: handleSocketMessages })
+        .put(connectedSocket())
+        .silentRun();
+    });
+
+    it("should dispatch disconnectedSocket if the socket gets closed by the server", () => {
+      const ctx = mockSagaContext({
+        socketChannel: mockChannel([new SocketClosedByServer()]),
+      });
+
+      return expectSaga(handleConnectingSocket, ctx)
+        .withReducer(reducers)
+        .put(disconnectedSocket())
         .silentRun();
     });
   });
 
-  describe("The handleSocketMessages", () => {
+  describe("The handleConnectedSocket", () => {
     it("should dispatch messages from the given channel", () => {
-      const channel = mockChannel([
-        {
-          type: "message",
-          payload: { bids: [[1000, 100]], asks: [] },
-        },
-      ]);
+      const ctx = mockSagaContext({
+        socketChannel: mockChannel([
+          {
+            type: "message",
+            payload: { bids: [[1000, 100]], asks: [] },
+          },
+        ]),
+      });
 
-      return expectSaga(handleSocketMessages, channel)
+      return expectSaga(handleConnectedSocket, ctx)
         .withReducer(reducers)
         .putResolve(receivedDeltas({ bids: [[1000, 100]], asks: [] }))
         .silentRun();
     });
 
     it("should batch messages from channel", () => {
-      const channel = mockChannel([
-        {
-          type: "message",
-          payload: { bids: [[1000, 100]], asks: [] },
-        },
-        {
-          type: "message",
-          payload: { bids: [[2000, 200]], asks: [[3000, 300]] },
-        },
-      ]);
+      const ctx = mockSagaContext({
+        socketChannel: mockChannel([
+          {
+            type: "message",
+            payload: { bids: [[1000, 100]], asks: [] },
+          },
 
-      return expectSaga(handleSocketMessages, channel)
+          {
+            type: "message",
+            payload: { bids: [[2000, 200]], asks: [[3000, 300]] },
+          },
+        ]),
+      });
+
+      return expectSaga(handleConnectedSocket, ctx)
         .withReducer(reducers)
         .putResolve(
           receivedDeltas({
@@ -103,21 +131,23 @@ describe("In the OrderBook sagas", () => {
         .silentRun();
     });
 
-    it("should await for the next message batch to form", () => {
-      return expectSaga(handleSocketMessages, mockChannel())
+    it("should delay next dispatch", () => {
+      const ctx = mockSagaContext();
+
+      return expectSaga(handleConnectedSocket, ctx)
         .withReducer(reducers)
-        .call.like({ fn: awaitForNextBatch })
+        .call.like({ fn: delayNextDispatch })
         .silentRun();
     });
   });
 
-  describe("The awaitForNextBatch", () => {
+  describe("The delayNextDispatch", () => {
     it("should delay execution for 50ms on fast machines", () => {
-      testSaga(awaitForNextBatch, performance.now()).next().delay(50);
+      testSaga(delayNextDispatch, performance.now()).next().delay(50);
     });
 
     it("should increase execution delay to 250ms on slow machines", () => {
-      testSaga(awaitForNextBatch, performance.now() - 100)
+      testSaga(delayNextDispatch, performance.now() - 100)
         .next()
         .delay(250);
     });
