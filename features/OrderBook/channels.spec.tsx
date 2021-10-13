@@ -105,5 +105,19 @@ describe("In the OrderBook channels", () => {
         );
       });
     });
+
+    it("should be flush-able", (done) => {
+      const channel = createSocketChannel("PI_XBTUSD", createSocket);
+      expect.assertions(1);
+
+      server.send(JSON.stringify({ bids: [], asks: [] }));
+      server.send(JSON.stringify({ bids: [], asks: [] }));
+      server.send(JSON.stringify({ bids: [], asks: [] }));
+
+      channel.flush((messages) => {
+        expect(messages).toHaveLength(3);
+        done();
+      });
+    });
   });
 });

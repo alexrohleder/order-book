@@ -1,4 +1,4 @@
-import { END, eventChannel } from "@redux-saga/core";
+import { buffers, END, eventChannel } from "@redux-saga/core";
 import { SocketMessage, ProductId } from "./types";
 
 export type SocketEvent = { type: "message"; payload: SocketMessage } | END;
@@ -53,5 +53,5 @@ export function createSocketChannel(
         socket.close();
       }
     };
-  });
+  }, buffers.expanding<SocketEvent>());
 }
