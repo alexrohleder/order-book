@@ -1,9 +1,9 @@
-import OrderBook from "../features/OrderBook";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="h-screen">
-      <OrderBook orientation="HORIZONTAL" />
+      <Link href="/responsive">Responsive</Link>
     </div>
   );
 }
