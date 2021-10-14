@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useSelector } from "../hooks/useStore";
 import { connectingSocket, switchedProducts } from "../reducers";
-import { State } from "../types";
 
 function OrderBookFooter() {
   const dispatch = useDispatch();
-  const socketState = useSelector((state: State) => state.socketState);
+  const socketState = useSelector((s) => s.socketState);
 
   if (socketState === "DISCONNECTED") {
     return (

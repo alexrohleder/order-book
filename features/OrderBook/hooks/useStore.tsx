@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import reducer from "../reducers";
 import rootSaga from "../sagas";
+import { TypedUseSelectorHook, useSelector as selectorHook } from "react-redux";
+import { State } from "../types";
 
 // We use this as a hook so we can tear down the sagas when OrderBook is unmounted.
 // Notice that the middleware is only created in the client, to avoid SSR socket messages.
@@ -76,5 +78,7 @@ function useStore() {
     return store;
   }, [sagaMiddleware]);
 }
+
+export const useSelector: TypedUseSelectorHook<State> = selectorHook;
 
 export default useStore;

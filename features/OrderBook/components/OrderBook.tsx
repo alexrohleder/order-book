@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import useStore from "../hooks/useStore";
 import { Orientation } from "../types";
 import OrderBookFooter from "./OrderBookFooter";
+import OrderBookTable from "./OrderBookTable";
 
 type Props = {
   orientation: Orientation;
@@ -20,7 +21,7 @@ function OrderBook(props: Props) {
           ...
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          ...
+          <OrderBookTable />
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />
