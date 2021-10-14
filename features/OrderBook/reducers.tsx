@@ -29,7 +29,6 @@ const orderBook = createSlice({
 
             if (price === currentPrice) {
               deleteCount = 1;
-              break;
             }
 
             if (currentPrice < price) {

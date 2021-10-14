@@ -18,10 +18,18 @@ function OrderBook(props: Props) {
       <div className="flex flex-col h-full relative">
         <div className="flex items-center w-full justify-center h-14 border-b border-gray-500">
           <div className="absolute left-8">Order Book</div>
-          ...
+          {!vertical && <div>...</div>}
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <OrderBookTable />
+          <OrderBookTable
+            type={vertical ? "asks" : "bids"}
+            vertical={vertical}
+          />
+          {vertical && <div>...</div>}
+          <OrderBookTable
+            type={vertical ? "bids" : "asks"}
+            vertical={vertical}
+          />
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />

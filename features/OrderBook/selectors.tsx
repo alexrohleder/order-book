@@ -20,11 +20,14 @@ export function selectTotal(
   state: State,
   type: "asks" | "bids",
   index: number
-) {
+): number | undefined {
   return selectTotals(state, type)[index];
 }
 
-export function selectHighestTotal(state: State, type: "asks" | "bids") {
+export function selectHighestTotal(
+  state: State,
+  type: "asks" | "bids"
+): number | undefined {
   const totals = selectTotals(state, type);
   return totals[totals.length - 1];
 }
@@ -33,10 +36,14 @@ export function selectPrice(
   state: State,
   type: "asks" | "bids",
   index: number
-) {
+): number | undefined {
   return state[type][index]?.[0];
 }
 
-export function selectSize(state: State, type: "asks" | "bids", index: number) {
+export function selectSize(
+  state: State,
+  type: "asks" | "bids",
+  index: number
+): number | undefined {
   return state[type][index]?.[1];
 }

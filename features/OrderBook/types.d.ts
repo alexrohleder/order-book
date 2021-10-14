@@ -8,6 +8,8 @@ export type SocketState = "DISCONNECTED" | "CONNECTING" | "CONNECTED";
 
 export type Delta = [number, number];
 
+export type DeltaType = "asks" | "bids";
+
 export type SocketMessage = {
   bids: Delta[];
   asks: Delta[];
