@@ -14,16 +14,18 @@ const orderBook = createSlice({
   reducers: {
     receivedDeltas(state, action: PayloadAction<SocketMessage>) {
       function patch(type: "bids" | "asks") {
+        const nextState = [...state[type]];
+
         for (const [price, size] of action.payload[type]) {
           let lowestIndex = 0;
-          let highestIndex = state[type].length;
+          let highestIndex = nextState.length;
 
           let deleteCount = 0;
           let newElement: Delta = [price, size];
 
           while (lowestIndex < highestIndex) {
             const midIndex = (lowestIndex + highestIndex) >>> 1;
-            const currentPrice = state[type][midIndex][0];
+            const currentPrice = nextState[midIndex][0];
 
             if (price === currentPrice) {
               deleteCount = 1;
@@ -38,15 +40,20 @@ const orderBook = createSlice({
           }
 
           if (size > 0) {
-            state[type].splice(lowestIndex, deleteCount, newElement);
+            nextState.splice(lowestIndex, deleteCount, newElement);
           } else {
-            state[type].splice(lowestIndex, 1);
+            nextState.splice(lowestIndex, 1);
           }
         }
+
+        return nextState;
       }
 
-      patch("bids");
-      patch("asks");
+      return {
+        ...state,
+        bids: patch("bids"),
+        asks: patch("asks"),
+      };
     },
 
     switchedProducts(state) {
