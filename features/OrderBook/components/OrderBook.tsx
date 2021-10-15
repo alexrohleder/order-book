@@ -11,25 +11,37 @@ type Props = {
 
 function OrderBook(props: Props) {
   const store = useStore();
-  const vertical = props.orientation === "VERTICAL";
+
+  if (props.orientation === "VERTICAL") {
+    return (
+      <Provider store={store}>
+        <div className="flex flex-col h-full">
+          <div className="flex items-center w-full h-14 px-8 border-b border-gray-500">
+            Order Book
+          </div>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <OrderBookTable type="asks" orientation="VERTICAL" />
+            <div>...</div>
+            <OrderBookTable type="bids" orientation="VERTICAL" />
+          </div>
+          <div className="flex items-center justify-center h-14">
+            <OrderBookFooter />
+          </div>
+        </div>
+      </Provider>
+    );
+  }
 
   return (
     <Provider store={store}>
       <div className="flex flex-col h-full relative">
-        <div className="flex items-center w-full justify-center h-14 border-b border-gray-500">
+        <div className="flex items-center w-full h-14 justify-center border-b border-gray-500">
           <div className="absolute left-8">Order Book</div>
-          {!vertical && <div>...</div>}
+          <div>...</div>
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <OrderBookTable
-            type={vertical ? "asks" : "bids"}
-            orientation={props.orientation}
-          />
-          {vertical && <div>...</div>}
-          <OrderBookTable
-            type={vertical ? "bids" : "asks"}
-            orientation={props.orientation}
-          />
+          <OrderBookTable type="bids" orientation={props.orientation} />
+          <OrderBookTable type="asks" orientation={props.orientation} />
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />
