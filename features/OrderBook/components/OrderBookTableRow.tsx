@@ -7,15 +7,16 @@ import {
   selectSize,
   selectTotal,
 } from "../selectors";
-import { DeltaType } from "../types";
+import { DeltaType, Orientation } from "../types";
 
 type Props = {
   type: DeltaType;
+  orientation: Orientation;
   rtl: boolean;
   index: number;
 };
 
-export const ROW_HEIGHT = 24;
+export const ROW_HEIGHT = 26;
 
 function OrderBookTableRow(props: Props) {
   const price = useSelector((state) => selectPrice(state, props));

@@ -1,3 +1,4 @@
+import { original } from "immer";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Delta, SocketMessage, State } from "./types";
 
@@ -13,33 +14,37 @@ const orderBook = createSlice({
   initialState,
   reducers: {
     receivedDeltas(state, action: PayloadAction<SocketMessage>) {
-      function patch(type: "bids" | "asks") {
-        const nextState = [...state[type]];
+      const originalState = original(state);
 
-        for (const [price, size] of action.payload[type]) {
+      function patch(type: "bids" | "asks") {
+        const nextState = [...originalState![type]];
+
+        for (const [newPrice, newSize] of action.payload[type]) {
           let lowestIndex = 0;
           let highestIndex = nextState.length;
 
-          let deleteCount = 0;
-          let newElement: Delta = [price, size];
+          let replace = 0;
+          let newElement: Delta = [newPrice, newSize];
 
           while (lowestIndex < highestIndex) {
             const midIndex = (lowestIndex + highestIndex) >>> 1;
             const currentPrice = nextState[midIndex][0];
 
-            if (price === currentPrice) {
-              deleteCount = 1;
+            if (newPrice === currentPrice) {
+              replace = 1;
+              lowestIndex = midIndex;
+              break;
             }
 
-            if (currentPrice < price) {
+            if (currentPrice < newPrice) {
               lowestIndex = midIndex + 1;
             } else {
               highestIndex = midIndex;
             }
           }
 
-          if (size > 0) {
-            nextState.splice(lowestIndex, deleteCount, newElement);
+          if (newSize > 0) {
+            nextState.splice(lowestIndex, replace, newElement);
           } else {
             nextState.splice(lowestIndex, 1);
           }
@@ -49,9 +54,10 @@ const orderBook = createSlice({
       }
 
       return {
-        ...state,
         bids: patch("bids"),
         asks: patch("asks"),
+        productId: state.productId,
+        socketState: state.socketState,
       };
     },
 

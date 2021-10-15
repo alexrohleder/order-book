@@ -23,12 +23,12 @@ function OrderBook(props: Props) {
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <OrderBookTable
             type={vertical ? "asks" : "bids"}
-            vertical={vertical}
+            orientation={props.orientation}
           />
           {vertical && <div>...</div>}
           <OrderBookTable
             type={vertical ? "bids" : "asks"}
-            vertical={vertical}
+            orientation={props.orientation}
           />
         </div>
         <div className="flex items-center justify-center h-14">

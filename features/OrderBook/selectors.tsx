@@ -1,58 +1,71 @@
 import { createSelector } from "reselect";
-import { DeltaType, State } from "./types";
+import { Delta, DeltaType, Orientation, State } from "./types";
 
-export const selectTotals = createSelector(
+export const select = createSelector(
   (state: State, props: { type: DeltaType }) => state[props.type],
-  (deltas) => {
+  (state: State, props: { type: DeltaType }) => props.type,
+  (state: State, props: { orientation: Orientation }) => props.orientation,
+  (deltas, type, orientation) => {
     const totals: number[] = [];
-    let lastPrice = 0;
+    const data: Delta[] = [];
+    let lastSize = 0;
 
-    for (let i = 0; i < deltas.length; i++) {
-      totals.push(lastPrice + deltas[i][1]);
-      lastPrice = totals[i];
+    const insertFn =
+      type === "asks" && orientation === "HORIZONTAL" ? "push" : "unshift";
+
+    for (const delta of deltas) {
+      data[insertFn](delta);
     }
 
-    return totals;
+    for (const [, size] of data) {
+      lastSize = lastSize + size;
+      totals.push(lastSize);
+    }
+
+    return { data, totals };
   }
 );
 
 export function selectTotal(
   state: State,
-  props: { type: DeltaType; index: number }
+  props: { type: DeltaType; orientation: Orientation; index: number }
 ) {
-  const totals = selectTotals(state, props);
+  const { totals } = select(state, props);
   return totals[props.index] ? totals[props.index] : null;
 }
 
 export function selectPrice(
   state: State,
-  props: { type: DeltaType; index: number }
+  props: { type: DeltaType; orientation: Orientation; index: number }
 ) {
-  return state[props.type][props.index]
-    ? state[props.type][props.index][0]
-    : null;
+  const { data } = select(state, props);
+
+  return data[props.index] ? data[props.index][0] : null;
 }
 
 export function selectSize(
   state: State,
-  props: { type: DeltaType; index: number }
+  props: { type: DeltaType; orientation: Orientation; index: number }
 ) {
-  return state[props.type][props.index]
-    ? state[props.type][props.index][1]
-    : null;
+  const { data } = select(state, props);
+
+  return data[props.index] ? data[props.index][1] : null;
 }
 
 export function selectLevelDepth(
   state: State,
-  props: { type: DeltaType; index: number }
+  props: { type: DeltaType; orientation: Orientation; index: number }
 ) {
-  const total = selectTotal(state, props);
+  const { totals } = select(state, props);
 
-  if (total === null) {
+  if (!totals[props.index]) {
     return 0;
   }
 
-  const totals = selectTotals(state, props);
-  const highestTotal = totals[totals.length - 1];
-  return (total / highestTotal) * 100;
+  const highestTotal =
+    totals[0] > totals[totals.length - 1]
+      ? totals[0]
+      : totals[totals.length - 1];
+
+  return (totals[props.index] / highestTotal) * 100;
 }
