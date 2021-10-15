@@ -47,6 +47,9 @@
     "tailwindcss": "^2.2.16",
     "typescript": "^4.4.3"
   },
+  "resolutions": {
+    "@types/react": "^17.0.27"
+  },
   "lint-staged": {
     "**/*": "yarn format",
     "**/*.{ts,tsx}": "yarn tsc --noEmit --jsx preserve --esModuleInterop"
