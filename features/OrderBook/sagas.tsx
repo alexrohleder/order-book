@@ -38,7 +38,10 @@ export function* handleConnectingSocket(ctx: SagaContext) {
       yield put(connectedSocket());
     }
   } catch (error) {
-    console.error("handle connecting socket failed", error); // todo: dispatch user notification
+    if (process.env.NODE_ENV !== "test") {
+      console.error("handle connecting socket failed", error); // todo: dispatch user notification
+    }
+
     yield put(disconnectedSocket());
   }
 }
@@ -70,7 +73,10 @@ export function* handleConnectedSocket(ctx: SagaContext) {
       yield call(delayNextDispatch, startedExecutingAt);
     }
   } catch (error) {
-    console.error("handle connected socket failed", error); // todo: dispatch user notification
+    if (process.env.NODE_ENV !== "test") {
+      console.error("handle connected socket failed", error); // todo: dispatch user notification
+    }
+
     yield put(disconnectedSocket());
   }
 }

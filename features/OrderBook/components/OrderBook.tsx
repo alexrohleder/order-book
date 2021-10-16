@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import useStore from "../hooks/useStore";
 import { Orientation } from "../types";
 import OrderBookFooter from "./OrderBookFooter";
+import OrderBookSpread from "./OrderBookSpread";
 import OrderBookTable from "./OrderBookTable";
 
 type Props = {
@@ -21,7 +22,7 @@ function OrderBook(props: Props) {
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
             <OrderBookTable type="asks" orientation="VERTICAL" />
-            <div>...</div>
+            <OrderBookSpread orientation="VERTICAL" />
             <OrderBookTable type="bids" orientation="VERTICAL" />
           </div>
           <div className="flex items-center justify-center h-14">
@@ -37,7 +38,7 @@ function OrderBook(props: Props) {
       <div className="flex flex-col h-full relative">
         <div className="flex items-center w-full h-14 justify-center border-b border-gray-500">
           <div className="absolute left-8">Order Book</div>
-          <div>...</div>
+          <OrderBookSpread orientation="HORIZONTAL" />
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <OrderBookTable type="bids" orientation={props.orientation} />

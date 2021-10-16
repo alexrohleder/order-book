@@ -76,3 +76,40 @@ export function selectLevelDepth(
 
   return (totals[props.index] / highestTotal) * 100;
 }
+
+export function selectSpread(
+  state: State,
+  props: { orientation: Orientation }
+) {
+  const bidsPrice = selectSortedDeltas(state, {
+    type: "bids",
+    orientation: props.orientation,
+  });
+
+  const asksDeltas = selectSortedDeltas(state, {
+    type: "asks",
+    orientation: props.orientation,
+  });
+
+  return asksDeltas.length && bidsPrice.length
+    ? asksDeltas[0][0] - bidsPrice[0][0]
+    : null;
+}
+
+export function selectSpreadPercentage(
+  state: State,
+  props: { orientation: Orientation }
+) {
+  const spread = selectSpread(state, props);
+
+  if (spread === null) {
+    return null;
+  }
+
+  const asksDeltas = selectSortedDeltas(state, {
+    type: "asks",
+    orientation: props.orientation,
+  });
+
+  return (spread / asksDeltas[0][0]) * 100;
+}

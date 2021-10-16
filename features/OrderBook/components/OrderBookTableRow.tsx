@@ -52,16 +52,15 @@ function Row(props: { children?: ReactNode }) {
 
 function RowWithDeph(props: { children: ReactNode } & Props) {
   const levelDepth = useSelector((state) => selectLevelDepth(state, props));
-  const multi = props.rtl ? -1 : 1;
   const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
+  const translateX = (100 - levelDepth) * (props.rtl ? -1 : 1) + "%";
 
   return (
     <Row>
       {props.children}
       <div
         className={`${color} bg-opacity-50 absolute h-full w-full`}
-        style={{ transform: `translateX(${levelDepth * multi}%)`, zIndex: -1 }}
-        data-testid="OrderBookTableRowBackground"
+        style={{ transform: `translateX(${translateX})`, zIndex: -1 }}
       />
     </Row>
   );
