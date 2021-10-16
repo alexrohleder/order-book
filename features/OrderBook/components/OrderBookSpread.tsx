@@ -1,10 +1,11 @@
 import { useSelector } from "../hooks/useStore";
 import { formatFloat } from "../lib/formatter";
 import { selectSpread, selectSpreadPercentage } from "../selectors";
-import { Orientation } from "../types";
+import { Sort } from "../types";
 
 type Props = {
-  orientation: Orientation;
+  bidsSort: Sort;
+  asksSort: Sort;
 };
 
 function OrderBookSpread(props: Props) {

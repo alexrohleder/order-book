@@ -7,13 +7,13 @@ import {
   selectSize,
   selectTotal,
 } from "../selectors";
-import { DeltaType, Orientation } from "../types";
+import { DeltaType, Dir, Sort } from "../types";
 
 type Props = {
-  type: DeltaType;
-  orientation: Orientation;
-  rtl: boolean;
   index: number;
+  type: DeltaType;
+  dir: Dir;
+  sort: Sort;
 };
 
 export const ROW_HEIGHT = 26;
@@ -53,7 +53,7 @@ function Row(props: { children?: ReactNode }) {
 function RowWithDeph(props: { children: ReactNode } & Props) {
   const levelDepth = useSelector((state) => selectLevelDepth(state, props));
   const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
-  const translateX = (100 - levelDepth) * (props.rtl ? -1 : 1) + "%";
+  const translateX = (100 - levelDepth) * (props.dir === "rtl" ? -1 : 1) + "%";
 
   return (
     <Row>

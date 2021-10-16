@@ -21,9 +21,9 @@ function OrderBook(props: Props) {
             Order Book
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
-            <OrderBookTable type="asks" orientation="VERTICAL" />
-            <OrderBookSpread orientation="VERTICAL" />
-            <OrderBookTable type="bids" orientation="VERTICAL" />
+            <OrderBookTable type="asks" sort="desc" dir="rtl" />
+            <OrderBookSpread bidsSort="desc" asksSort="desc" />
+            <OrderBookTable type="bids" sort="desc" dir="rtl" />
           </div>
           <div className="flex items-center justify-center h-14">
             <OrderBookFooter />
@@ -38,11 +38,11 @@ function OrderBook(props: Props) {
       <div className="flex flex-col h-full relative">
         <div className="flex items-center w-full h-14 justify-center border-b border-gray-500">
           <div className="absolute left-8">Order Book</div>
-          <OrderBookSpread orientation="HORIZONTAL" />
+          <OrderBookSpread bidsSort="desc" asksSort="asc" />
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <OrderBookTable type="bids" orientation={props.orientation} />
-          <OrderBookTable type="asks" orientation={props.orientation} />
+          <OrderBookTable type="bids" sort="desc" dir="ltr" />
+          <OrderBookTable type="asks" sort="asc" dir="rtl" />
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />

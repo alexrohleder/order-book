@@ -1,14 +1,13 @@
 import { createSelector } from "reselect";
-import { Delta, DeltaType, Orientation, State } from "./types";
+import { Delta, DeltaType, Sort, State } from "./types";
 
 export const selectSortedDeltas = createSelector(
   (state: State, props: { type: DeltaType }) => state[props.type],
-  (state: State, props: { type: DeltaType }) => props.type,
-  (state: State, props: { orientation: Orientation }) => props.orientation,
-  (deltas, type, orientation) => {
+  (state: State, props: { sort: Sort }) => props.sort,
+  (deltas, sort) => {
     let data: Delta[] = [];
 
-    if (type === "asks" && orientation === "HORIZONTAL") {
+    if (sort === "asc") {
       for (let i = deltas.length - 1; i > -1; i--) {
         data.push(deltas[i]);
       }
@@ -34,7 +33,7 @@ export const selectTotals = createSelector(selectSortedDeltas, (deltas) => {
 
 export function selectTotal(
   state: State,
-  props: { type: DeltaType; orientation: Orientation; index: number }
+  props: { type: DeltaType; sort: Sort; index: number }
 ) {
   const totals = selectTotals(state, props);
 
@@ -43,7 +42,7 @@ export function selectTotal(
 
 export function selectPrice(
   state: State,
-  props: { type: DeltaType; orientation: Orientation; index: number }
+  props: { type: DeltaType; sort: Sort; index: number }
 ) {
   const deltas = selectSortedDeltas(state, props);
 
@@ -52,7 +51,7 @@ export function selectPrice(
 
 export function selectSize(
   state: State,
-  props: { type: DeltaType; orientation: Orientation; index: number }
+  props: { type: DeltaType; sort: Sort; index: number }
 ) {
   const deltas = selectSortedDeltas(state, props);
 
@@ -61,7 +60,7 @@ export function selectSize(
 
 export function selectLevelDepth(
   state: State,
-  props: { type: DeltaType; orientation: Orientation; index: number }
+  props: { type: DeltaType; sort: Sort; index: number }
 ) {
   const totals = selectTotals(state, props);
 
@@ -79,16 +78,16 @@ export function selectLevelDepth(
 
 export function selectSpread(
   state: State,
-  props: { orientation: Orientation }
+  props: { bidsSort: Sort; asksSort: Sort }
 ) {
   const bidsPrice = selectSortedDeltas(state, {
     type: "bids",
-    orientation: props.orientation,
+    sort: props.bidsSort,
   });
 
   const asksDeltas = selectSortedDeltas(state, {
     type: "asks",
-    orientation: props.orientation,
+    sort: props.asksSort,
   });
 
   return asksDeltas.length && bidsPrice.length
@@ -98,7 +97,7 @@ export function selectSpread(
 
 export function selectSpreadPercentage(
   state: State,
-  props: { orientation: Orientation }
+  props: { bidsSort: Sort; asksSort: Sort }
 ) {
   const spread = selectSpread(state, props);
 
@@ -108,7 +107,7 @@ export function selectSpreadPercentage(
 
   const asksDeltas = selectSortedDeltas(state, {
     type: "asks",
-    orientation: props.orientation,
+    sort: props.asksSort,
   });
 
   return (spread / asksDeltas[0][0]) * 100;
