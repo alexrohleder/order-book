@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import useElementSize from "../hooks/useElementSize";
 import { DeltaType, Dir, Sort } from "../types";
-import OrderBookTableRow, { ROW_HEIGHT } from "./OrderBookTableRow";
+import OrderBookSideLevel from "./OrderBookSideLevel";
+import { ROW_HEIGHT } from "./OrderBookSideLevelBase";
 
 type Props = {
   type: DeltaType;
@@ -9,10 +10,9 @@ type Props = {
   sort: Sort;
 };
 
-function OrderBookTable(props: Props) {
+function OrderBookSide(props: Props) {
   const tableRef = useRef(null);
   const tableSize = useElementSize(tableRef);
-
   const totalRowCount = Math.floor(tableSize.height / ROW_HEIGHT);
 
   return (
@@ -21,7 +21,7 @@ function OrderBookTable(props: Props) {
       className="flex flex-col h-full w-full overflow-hidden font-mono"
     >
       {Array.from(Array(totalRowCount)).map((_, i) => (
-        <OrderBookTableRow
+        <OrderBookSideLevel
           key={i}
           index={i}
           type={props.type}
@@ -33,4 +33,4 @@ function OrderBookTable(props: Props) {
   );
 }
 
-export default OrderBookTable;
+export default OrderBookSide;

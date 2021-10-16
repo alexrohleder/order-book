@@ -5,7 +5,7 @@ import { Orientation } from "../types";
 import OrderBookFooter from "./OrderBookFooter";
 import OrderBookSideHeader from "./OrderBookSideHeader";
 import OrderBookSpread from "./OrderBookSpread";
-import OrderBookTable from "./OrderBookTable";
+import OrderBookSide from "./OrderBookSide";
 
 type Props = {
   orientation: Orientation;
@@ -23,9 +23,9 @@ function OrderBook(props: Props) {
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
             <OrderBookSideHeader dir="rtl">
-              <OrderBookTable type="asks" sort="desc" dir="rtl" />
+              <OrderBookSide type="asks" sort="desc" dir="rtl" />
               <OrderBookSpread bidsSort="desc" asksSort="desc" />
-              <OrderBookTable type="bids" sort="desc" dir="rtl" />
+              <OrderBookSide type="bids" sort="desc" dir="rtl" />
             </OrderBookSideHeader>
           </div>
           <div className="flex items-center justify-center h-14">
@@ -45,10 +45,10 @@ function OrderBook(props: Props) {
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <OrderBookSideHeader dir="ltr">
-            <OrderBookTable type="bids" sort="desc" dir="ltr" />
+            <OrderBookSide type="bids" sort="desc" dir="ltr" />
           </OrderBookSideHeader>
           <OrderBookSideHeader dir="rtl">
-            <OrderBookTable type="asks" sort="asc" dir="rtl" />
+            <OrderBookSide type="asks" sort="asc" dir="rtl" />
           </OrderBookSideHeader>
         </div>
         <div className="flex items-center justify-center h-14">

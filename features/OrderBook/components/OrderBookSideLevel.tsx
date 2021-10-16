@@ -8,6 +8,7 @@ import {
   selectTotal,
 } from "../selectors";
 import { DeltaType, Dir, Sort } from "../types";
+import { Cell, Row } from "./OrderBookSideLevelBase";
 
 type Props = {
   index: number;
@@ -16,9 +17,7 @@ type Props = {
   sort: Sort;
 };
 
-export const ROW_HEIGHT = 26;
-
-function OrderBookTableRow(props: Props) {
+function OrderBookSideLevel(props: Props) {
   const price = useSelector((state) => selectPrice(state, props));
   const size = useSelector((state) => selectSize(state, props));
   const total = useSelector((state) => selectTotal(state, props));
@@ -38,18 +37,6 @@ function OrderBookTableRow(props: Props) {
   );
 }
 
-export function Row(props: { children?: ReactNode; dir: Dir }) {
-  return (
-    <div
-      dir={props.dir}
-      style={{ minHeight: ROW_HEIGHT }}
-      className="flex-1 grid grid-cols-3 items-center relative px-16"
-    >
-      {props.children}
-    </div>
-  );
-}
-
 function RowWithDeph(props: { children: ReactNode } & Props) {
   const levelDepth = useSelector((state) => selectLevelDepth(state, props));
   const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
@@ -66,12 +53,4 @@ function RowWithDeph(props: { children: ReactNode } & Props) {
   );
 }
 
-export function Cell(props: { children: ReactNode; color?: string }) {
-  return (
-    <div dir="rtl" className={props.color}>
-      {props.children}
-    </div>
-  );
-}
-
-export default OrderBookTableRow;
+export default OrderBookSideLevel;

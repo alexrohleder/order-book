@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Dir } from "../types";
-import { Row, Cell } from "./OrderBookTableRow";
+import { Row, Cell } from "./OrderBookSideLevelBase";
 
 type Props = {
   children: ReactNode;
