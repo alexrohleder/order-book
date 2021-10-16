@@ -24,7 +24,7 @@ function OrderBookTableRow(props: Props) {
   const total = useSelector((state) => selectTotal(state, props));
 
   if (!price || !size || !total) {
-    return <Row />;
+    return <Row dir={props.dir} />;
   }
 
   return (
@@ -38,10 +38,10 @@ function OrderBookTableRow(props: Props) {
   );
 }
 
-function Row(props: { children?: ReactNode }) {
+export function Row(props: { children?: ReactNode; dir: Dir }) {
   return (
     <div
-      role="row"
+      dir={props.dir}
       style={{ minHeight: ROW_HEIGHT }}
       className="flex-1 grid grid-cols-3 items-center relative px-16"
     >
@@ -56,7 +56,7 @@ function RowWithDeph(props: { children: ReactNode } & Props) {
   const translateX = (100 - levelDepth) * (props.dir === "rtl" ? -1 : 1) + "%";
 
   return (
-    <Row>
+    <Row dir={props.dir}>
       {props.children}
       <div
         className={`${color} bg-opacity-50 absolute h-full w-full`}
@@ -66,9 +66,9 @@ function RowWithDeph(props: { children: ReactNode } & Props) {
   );
 }
 
-function Cell(props: { children: ReactNode; color?: string }) {
+export function Cell(props: { children: ReactNode; color?: string }) {
   return (
-    <div role="cell" dir="rtl" className={props.color}>
+    <div dir="rtl" className={props.color}>
       {props.children}
     </div>
   );

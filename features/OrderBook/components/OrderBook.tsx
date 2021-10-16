@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import useStore from "../hooks/useStore";
 import { Orientation } from "../types";
 import OrderBookFooter from "./OrderBookFooter";
+import OrderBookSideHeader from "./OrderBookSideHeader";
 import OrderBookSpread from "./OrderBookSpread";
 import OrderBookTable from "./OrderBookTable";
 
@@ -21,9 +22,11 @@ function OrderBook(props: Props) {
             Order Book
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
-            <OrderBookTable type="asks" sort="desc" dir="rtl" />
-            <OrderBookSpread bidsSort="desc" asksSort="desc" />
-            <OrderBookTable type="bids" sort="desc" dir="rtl" />
+            <OrderBookSideHeader dir="rtl">
+              <OrderBookTable type="asks" sort="desc" dir="rtl" />
+              <OrderBookSpread bidsSort="desc" asksSort="desc" />
+              <OrderBookTable type="bids" sort="desc" dir="rtl" />
+            </OrderBookSideHeader>
           </div>
           <div className="flex items-center justify-center h-14">
             <OrderBookFooter />
@@ -41,8 +44,12 @@ function OrderBook(props: Props) {
           <OrderBookSpread bidsSort="desc" asksSort="asc" />
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <OrderBookTable type="bids" sort="desc" dir="ltr" />
-          <OrderBookTable type="asks" sort="asc" dir="rtl" />
+          <OrderBookSideHeader dir="ltr">
+            <OrderBookTable type="bids" sort="desc" dir="ltr" />
+          </OrderBookSideHeader>
+          <OrderBookSideHeader dir="rtl">
+            <OrderBookTable type="asks" sort="asc" dir="rtl" />
+          </OrderBookSideHeader>
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />

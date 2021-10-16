@@ -18,8 +18,6 @@ function OrderBookTable(props: Props) {
   return (
     <div
       ref={tableRef}
-      dir={props.dir}
-      role="table"
       className="flex flex-col h-full w-full overflow-hidden font-mono"
     >
       {Array.from(Array(totalRowCount)).map((_, i) => (
