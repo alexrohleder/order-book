@@ -22,47 +22,48 @@ function OrderBookTableRow(props: Props) {
   const price = useSelector((state) => selectPrice(state, props));
   const size = useSelector((state) => selectSize(state, props));
   const total = useSelector((state) => selectTotal(state, props));
-  const levelDepth = useSelector((state) => selectLevelDepth(state, props));
 
   if (!price || !size || !total) {
     return <Row />;
   }
 
   return (
-    <Row bg={{ rtl: props.rtl, type: props.type, pos: levelDepth }}>
+    <RowWithDeph {...props}>
       <Cell>{formatInt(total)}</Cell>
       <Cell>{formatInt(size)}</Cell>
       <Cell color={props.type === "bids" ? "text-green-600" : "text-red-600"}>
         {formatFloat(price)}
       </Cell>
-    </Row>
+    </RowWithDeph>
   );
 }
 
-function Row(props: {
-  children?: ReactNode;
-  bg?: { rtl: boolean; type: DeltaType; pos: number };
-}) {
-  const dir = props.bg?.rtl ? "right" : "left";
-
-  const color =
-    props.bg?.type === "asks"
-      ? "rgba(220, 38, 38, 0.25)"
-      : "rgba(5, 150, 105, 0.25)";
-
+function Row(props: { children?: ReactNode }) {
   return (
     <div
       role="row"
-      style={{
-        minHeight: ROW_HEIGHT,
-        background: props.bg
-          ? `linear-gradient(to ${dir}, ${color} ${props.bg.pos}%, transparent ${props.bg.pos}%)`
-          : undefined,
-      }}
+      style={{ minHeight: ROW_HEIGHT }}
       className="flex-1 grid grid-cols-3 items-center relative px-16"
     >
       {props.children}
     </div>
+  );
+}
+
+function RowWithDeph(props: { children: ReactNode } & Props) {
+  const levelDepth = useSelector((state) => selectLevelDepth(state, props));
+  const multi = props.rtl ? -1 : 1;
+  const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
+
+  return (
+    <Row>
+      {props.children}
+      <div
+        className={`${color} bg-opacity-50 absolute h-full w-full`}
+        style={{ transform: `translateX(${levelDepth * multi}%)`, zIndex: -1 }}
+        data-testid="OrderBookTableRowBackground"
+      />
+    </Row>
   );
 }
 
