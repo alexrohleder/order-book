@@ -37,7 +37,8 @@ export function* handleConnectingSocket(ctx: SagaContext) {
     if (message.type === "connection-established") {
       yield put(connectedSocket());
     }
-  } catch {
+  } catch (error) {
+    console.error("handle connecting socket failed", error); // todo: dispatch user notification
     yield put(disconnectedSocket());
   }
 }
@@ -68,7 +69,8 @@ export function* handleConnectedSocket(ctx: SagaContext) {
 
       yield call(delayNextDispatch, startedExecutingAt);
     }
-  } catch {
+  } catch (error) {
+    console.error("handle connected socket failed", error); // todo: dispatch user notification
     yield put(disconnectedSocket());
   }
 }

@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import useElementSize from "../hooks/useElementSize";
-import { useSelector } from "../hooks/useStore";
 import { DeltaType, Orientation } from "../types";
 import OrderBookTableRow, { ROW_HEIGHT } from "./OrderBookTableRow";
 
@@ -12,7 +11,6 @@ type Props = {
 function OrderBookTable(props: Props) {
   const tableRef = useRef(null);
   const tableSize = useElementSize(tableRef);
-  const socketState = useSelector((s) => s.socketState);
 
   const totalRowCount = Math.floor(tableSize.height / ROW_HEIGHT);
   const vertical = props.orientation === "VERTICAL";
