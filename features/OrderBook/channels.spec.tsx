@@ -1,4 +1,3 @@
-import { END } from "@redux-saga/core";
 import WS from "jest-websocket-mock";
 import { createSocketChannel } from "./channels";
 import { SocketClosedByServer } from "./lib/errors";
@@ -137,5 +136,9 @@ describe("In the OrderBook channels", () => {
         done();
       });
     });
+  });
+
+  describe("The BrowserChannel", () => {
+    it.todo("should emit when changing tabs");
   });
 });

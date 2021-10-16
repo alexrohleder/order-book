@@ -12,11 +12,14 @@ function OrderBookSpread(props: Props) {
   const percent = useSelector((state) => selectSpreadPercentage(state, props));
 
   if (spread === null || percent === null) {
-    return null;
+    return <div style={{ minHeight: 56 }} />;
   }
 
   return (
-    <div className="text-gray-500 text-center w-full">
+    <div
+      style={{ minHeight: 56 }}
+      className="text-gray-500 w-full flex items-center justify-center"
+    >
       Spread {formatFloat(spread)} ({percent.toFixed(2)}%)
     </div>
   );

@@ -63,3 +63,17 @@ export function createSocketChannel(
     };
   }, buffers.expanding<SocketEvent>());
 }
+
+type BrowserEvent = { type: "visibilitychange" };
+
+export function createBrowserChannel() {
+  return eventChannel<BrowserEvent>((emitter) => {
+    const handler = (event) => emitter({ type: event.type });
+
+    window.addEventListener("visibilitychange", handler);
+
+    return () => {
+      window.removeEventListener("visibilitychange", handler);
+    };
+  });
+}

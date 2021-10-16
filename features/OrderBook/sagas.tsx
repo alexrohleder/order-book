@@ -7,8 +7,13 @@ import {
   take,
   takeEvery,
   delay,
+  fork,
 } from "@redux-saga/core/effects";
-import { createSocketChannel, SocketEvent } from "./channels";
+import {
+  createBrowserChannel,
+  createSocketChannel,
+  SocketEvent,
+} from "./channels";
 import {
   connectedSocket,
   connectingSocket,
@@ -18,6 +23,15 @@ import {
   switchedProducts,
 } from "./reducers";
 import { SagaContext, SocketMessage, State } from "./types";
+
+export function* disconnectOnBrowserEvents() {
+  const browserChannel = createBrowserChannel();
+
+  while (true) {
+    yield take(browserChannel);
+    yield put(disconnectedSocket());
+  }
+}
 
 export function* delayNextDispatch(startedExecutingBatchAt: number) {
   const lastExecutionTime = performance.now() - startedExecutingBatchAt;
@@ -49,7 +63,11 @@ export function* handleConnectingSocket(ctx: SagaContext) {
 export function* handleConnectedSocket(ctx: SagaContext) {
   try {
     while (true) {
-      const events = yield flush(ctx.socketChannel!);
+      if (ctx.socketChannel === null) {
+        break;
+      }
+
+      const events = yield flush(ctx.socketChannel);
       const startedExecutingAt = performance.now();
 
       if (Array.isArray(events)) {
@@ -102,6 +120,7 @@ function* rootSaga() {
   yield takeEvery(disconnectedSocket.type, handleDisconnectedSocket, ctx);
   yield takeEvery(switchedProducts.type, handleProductChange);
 
+  yield fork(disconnectOnBrowserEvents);
   yield put(connectingSocket());
 }
 
