@@ -1,19 +1,22 @@
+const FormatInt = new Intl.NumberFormat("en");
+
 export function formatInt(value: number) {
   try {
-    return value.toLocaleString("en-US");
+    return FormatInt.format(value);
   } catch {
-    return value.toString();
+    return String(value);
   }
 }
 
-export function formatFloat(value: number | undefined) {
-  if (Number.isNaN(value) || typeof value !== "number") {
-    return "NaN";
+const FormatFloat = new Intl.NumberFormat("en", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export function formatFloat(value: number) {
+  try {
+    return FormatFloat.format(value);
+  } catch {
+    return String(value);
   }
-
-  const withPrecision =
-    typeof value.toFixed === "function" ? value.toFixed(2) : value + ".00"; // integer
-
-  const [int, decimals] = withPrecision.split(".");
-  return formatInt(Number(int)) + "." + decimals;
 }
