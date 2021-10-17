@@ -8,7 +8,7 @@ export function Row(props: { children?: ReactNode; dir: Dir }) {
     <div
       dir={props.dir}
       style={{ minHeight: ROW_HEIGHT }}
-      className="flex-1 grid grid-cols-3 items-center relative px-16"
+      className="flex-1 grid grid-cols-3 items-center relative px-4 lg:px-16"
     >
       {props.children}
     </div>
