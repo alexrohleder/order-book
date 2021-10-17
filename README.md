@@ -37,3 +37,10 @@ Here is a list of relevant changes for performance 🚀
   We avoid sorting using the native quick-sort solution and implement an optimized sorting algorithm
   for sorted list of tuples. It sorts in the same run as it inserts, removes and updates the tuples.
 </details>
+
+<details>
+  <summary>Replace extensive use of CSS variables and opacity by values</summary>
+  In production builds we use a postcss plugin that converts tailwindcss css variables into values in
+  order to improve the compute layout process of browsers. We also avoid using opacity for background colors,
+  so this plugin can safely convert them.
+</details>

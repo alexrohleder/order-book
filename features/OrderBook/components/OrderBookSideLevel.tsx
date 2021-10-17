@@ -38,15 +38,19 @@ function OrderBookSideLevel(props: Props) {
 
 function RowWithDeph(props: { children: ReactNode } & Props) {
   const levelDepth = useSelector((state) => selectLevelDepth(state, props));
-  const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
+  const backgroundColor = props.type === "asks" ? "#361A24" : "#0D2A2E";
   const translateX = (100 - levelDepth) * (props.rtl ? -1 : 1) + "%";
 
   return (
     <Row rtl={props.rtl}>
       {props.children}
       <div
-        className={`${color} bg-opacity-50 absolute h-full w-full`}
-        style={{ transform: `translateX(${translateX})`, zIndex: -1 }}
+        className="absolute h-full w-full"
+        style={{
+          transform: `translateX(${translateX})`,
+          zIndex: -1,
+          backgroundColor,
+        }}
       />
     </Row>
   );
