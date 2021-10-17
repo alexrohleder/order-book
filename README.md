@@ -22,6 +22,7 @@ Here is a list of relevant changes for performance 🚀
   <summary>Use browser's dir property to avoid layout shift</summary>
   We need to change the order of text in screen, CSS text-align seems to trigger layout.
   Then dir property was adopted to avoid that.
+  Notice that this could have been flex-direction too.
 </details>
 
 <details>
