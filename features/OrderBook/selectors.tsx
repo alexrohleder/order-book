@@ -1,39 +1,24 @@
 import { createSelector } from "reselect";
-import { Delta, DeltaType, Sort, State } from "./types";
+import { DeltaType, State } from "./types";
 
-export const selectSortedDeltas = createSelector(
+export const selectTotals = createSelector(
   (state: State, props: { type: DeltaType }) => state[props.type],
-  (state: State, props: { sort: Sort }) => props.sort,
-  (deltas, sort) => {
-    let data: Delta[] = [];
+  (deltas) => {
+    let totals: number[] = [];
+    let lastSize = 0;
 
-    if (sort === "asc") {
-      for (let i = deltas.length - 1; i > -1; i--) {
-        data.push(deltas[i]);
-      }
-    } else {
-      data = deltas;
+    for (const [, size] of deltas) {
+      lastSize = lastSize + size;
+      totals.push(lastSize);
     }
 
-    return data;
+    return totals;
   }
 );
 
-export const selectTotals = createSelector(selectSortedDeltas, (deltas) => {
-  let totals: number[] = [];
-  let lastSize = 0;
-
-  for (const [, size] of deltas) {
-    lastSize = lastSize + size;
-    totals.push(lastSize);
-  }
-
-  return totals;
-});
-
 export function selectTotal(
   state: State,
-  props: { type: DeltaType; sort: Sort; index: number }
+  props: { type: DeltaType; index: number }
 ) {
   const totals = selectTotals(state, props);
 
@@ -42,25 +27,25 @@ export function selectTotal(
 
 export function selectPrice(
   state: State,
-  props: { type: DeltaType; sort: Sort; index: number }
+  props: { type: DeltaType; index: number }
 ) {
-  const deltas = selectSortedDeltas(state, props);
-
-  return deltas[props.index] ? deltas[props.index][0] : null;
+  return state[props.type][props.index]
+    ? state[props.type][props.index][0]
+    : null;
 }
 
 export function selectSize(
   state: State,
-  props: { type: DeltaType; sort: Sort; index: number }
+  props: { type: DeltaType; index: number }
 ) {
-  const deltas = selectSortedDeltas(state, props);
-
-  return deltas[props.index] ? deltas[props.index][1] : null;
+  return state[props.type][props.index]
+    ? state[props.type][props.index][1]
+    : null;
 }
 
 export function selectLevelDepth(
   state: State,
-  props: { type: DeltaType; sort: Sort; index: number }
+  props: { type: DeltaType; index: number }
 ) {
   const totals = selectTotals(state, props);
 
@@ -76,39 +61,18 @@ export function selectLevelDepth(
   return (totals[props.index] / highestTotal) * 100;
 }
 
-export function selectSpread(
-  state: State,
-  props: { bidsSort: Sort; asksSort: Sort }
-) {
-  const bidsPrice = selectSortedDeltas(state, {
-    type: "bids",
-    sort: props.bidsSort,
-  });
-
-  const asksDeltas = selectSortedDeltas(state, {
-    type: "asks",
-    sort: props.asksSort,
-  });
-
-  return asksDeltas.length && bidsPrice.length
-    ? asksDeltas[0][0] - bidsPrice[0][0]
+export function selectSpread(state: State) {
+  return state.asks.length && state.bids.length
+    ? state.asks[0][0] - state.bids[0][0]
     : null;
 }
 
-export function selectSpreadPercentage(
-  state: State,
-  props: { bidsSort: Sort; asksSort: Sort }
-) {
-  const spread = selectSpread(state, props);
+export function selectSpreadPercentage(state: State) {
+  const spread = selectSpread(state);
 
   if (spread === null) {
     return null;
   }
 
-  const asksDeltas = selectSortedDeltas(state, {
-    type: "asks",
-    sort: props.asksSort,
-  });
-
-  return (spread / asksDeltas[0][0]) * 100;
+  return (spread / state.asks[0][0]) * 100;
 }

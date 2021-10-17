@@ -15,9 +15,9 @@ export const mockStateWithDeltas: Partial<State> = {
     [1000, 50],
   ],
   asks: [
-    [2050.5, 150],
-    [2050, 100],
     [1000, 200],
+    [2050, 100],
+    [2050.5, 150],
   ],
 };
 

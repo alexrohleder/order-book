@@ -1,12 +1,11 @@
 import { ReactNode } from "react";
-import { Dir } from "../types";
 
 export const ROW_HEIGHT = 26;
 
-export function Row(props: { children?: ReactNode; dir: Dir }) {
+export function Row(props: { children?: ReactNode; rtl?: boolean }) {
   return (
     <div
-      dir={props.dir}
+      dir={props.rtl ? "rtl" : "ltr"}
       style={{ minHeight: ROW_HEIGHT }}
       className="flex-1 grid grid-cols-3 items-center relative px-4 lg:px-16"
     >

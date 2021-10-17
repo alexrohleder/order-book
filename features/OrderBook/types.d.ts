@@ -11,10 +11,6 @@ export type Delta = [number, number];
 
 export type DeltaType = "asks" | "bids";
 
-export type Sort = "asc" | "desc";
-
-export type Dir = "rtl" | "ltr";
-
 export type SocketMessage = {
   bids: Delta[];
   asks: Delta[];

@@ -7,14 +7,13 @@ import {
   selectSize,
   selectTotal,
 } from "../selectors";
-import { DeltaType, Dir, Sort } from "../types";
+import { DeltaType } from "../types";
 import { Cell, Row } from "./OrderBookSideLevelBase";
 
 type Props = {
   index: number;
   type: DeltaType;
-  dir: Dir;
-  sort: Sort;
+  rtl?: boolean;
 };
 
 function OrderBookSideLevel(props: Props) {
@@ -23,7 +22,7 @@ function OrderBookSideLevel(props: Props) {
   const total = useSelector((state) => selectTotal(state, props));
 
   if (!price || !size || !total) {
-    return <Row dir={props.dir} />;
+    return <Row rtl={props.rtl} />;
   }
 
   return (
@@ -40,10 +39,10 @@ function OrderBookSideLevel(props: Props) {
 function RowWithDeph(props: { children: ReactNode } & Props) {
   const levelDepth = useSelector((state) => selectLevelDepth(state, props));
   const color = props.type === "asks" ? "bg-red-900" : "bg-green-900";
-  const translateX = (100 - levelDepth) * (props.dir === "rtl" ? -1 : 1) + "%";
+  const translateX = (100 - levelDepth) * (props.rtl ? -1 : 1) + "%";
 
   return (
-    <Row dir={props.dir}>
+    <Row rtl={props.rtl}>
       {props.children}
       <div
         className={`${color} bg-opacity-50 absolute h-full w-full`}

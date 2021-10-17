@@ -34,7 +34,6 @@ Here is a list of relevant changes for performance 🚀
 
 <details>
   <summary>Apply socket patches into a sorted array in-place to avoid sorting</summary>
-  The orderbook have an descending order in most of the cases, in one we have a descending order.
-  Every time we receive updates from the socket we place them in the right position in the orders array, descending.
-  This makes us avoid sorting completely in VERTICAL (mobile), and sort only one side in HORIZONTAL (desktop).
+  We avoid sorting using the native quick-sort solution and implement an optimized sorting algorithm
+  for sorted list of tuples. It sorts in the same run as it inserts, removes and updates the tuples.
 </details>

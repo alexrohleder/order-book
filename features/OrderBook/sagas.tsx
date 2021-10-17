@@ -27,11 +27,9 @@ import {
 import { SagaContext, SocketMessage, State } from "./types";
 
 export function* disconnectOnBrowserEvents(
-  defaultBrowserChannel?: ReturnType<typeof createBrowserChannel>
+  browserChannel: ReturnType<typeof createBrowserChannel>
 ) {
   try {
-    const browserChannel = defaultBrowserChannel ?? createBrowserChannel();
-
     while (true) {
       yield take(browserChannel);
 
@@ -150,7 +148,7 @@ function* rootSaga() {
   yield takeEvery(disconnectedSocket.type, handleDisconnectedSocket, ctx);
   yield takeEvery(switchedProducts.type, handleProductChange);
 
-  yield fork(disconnectOnBrowserEvents);
+  yield fork(disconnectOnBrowserEvents, createBrowserChannel());
   yield put(connectingSocket());
 }
 

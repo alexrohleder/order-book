@@ -1,13 +1,14 @@
 import { useRef } from "react";
 import useElementSize from "../hooks/useElementSize";
-import { DeltaType, Dir, Sort } from "../types";
+import { DeltaType } from "../types";
 import OrderBookSideLevel from "./OrderBookSideLevel";
 import { ROW_HEIGHT } from "./OrderBookSideLevelBase";
 
 type Props = {
   type: DeltaType;
-  dir: Dir;
-  sort: Sort;
+  originX?: "r" | "l";
+  originY?: "t" | "b";
+  vertical?: boolean;
 };
 
 function OrderBookSide(props: Props) {
@@ -18,17 +19,20 @@ function OrderBookSide(props: Props) {
   return (
     <div
       ref={tableRef}
-      className="flex flex-col h-full w-full overflow-hidden font-mono"
+      className="flex-1 flex flex-col overflow-hidden font-mono"
     >
-      {Array.from(Array(totalRowCount)).map((_, i) => (
-        <OrderBookSideLevel
-          key={i}
-          index={i}
-          type={props.type}
-          dir={props.dir}
-          sort={props.sort}
-        />
-      ))}
+      {Array.from(Array(totalRowCount)).map((_, i) => {
+        const index = props.originY === "b" ? ~(i - totalRowCount) : i;
+
+        return (
+          <OrderBookSideLevel
+            key={index}
+            index={index}
+            type={props.type}
+            rtl={props.originX === "r"}
+          />
+        );
+      })}
     </div>
   );
 }

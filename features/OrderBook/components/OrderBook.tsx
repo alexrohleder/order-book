@@ -24,10 +24,10 @@ function OrderBook(props: Props) {
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
             <OrderBookSocketStateDisplay>
-              <OrderBookSideHeader dir="rtl">
-                <OrderBookSide type="asks" sort="desc" dir="rtl" />
-                <OrderBookSpread bidsSort="desc" asksSort="desc" />
-                <OrderBookSide type="bids" sort="desc" dir="rtl" />
+              <OrderBookSideHeader rtl>
+                <OrderBookSide type="asks" originX="r" originY="b" />
+                <OrderBookSpread />
+                <OrderBookSide type="bids" originX="r" />
               </OrderBookSideHeader>
             </OrderBookSocketStateDisplay>
           </div>
@@ -44,15 +44,15 @@ function OrderBook(props: Props) {
       <div className="flex flex-col h-full text-sm lg:text-base relative">
         <div className="flex items-center w-full h-14 justify-center border-b border-gray-500">
           <div className="absolute left-8">Order Book</div>
-          <OrderBookSpread bidsSort="desc" asksSort="asc" />
+          <OrderBookSpread />
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <OrderBookSocketStateDisplay>
-            <OrderBookSideHeader dir="ltr">
-              <OrderBookSide type="bids" sort="desc" dir="ltr" />
+            <OrderBookSideHeader>
+              <OrderBookSide type="bids" />
             </OrderBookSideHeader>
-            <OrderBookSideHeader dir="rtl">
-              <OrderBookSide type="asks" sort="asc" dir="rtl" />
+            <OrderBookSideHeader rtl>
+              <OrderBookSide type="asks" originX="r" />
             </OrderBookSideHeader>
           </OrderBookSocketStateDisplay>
         </div>

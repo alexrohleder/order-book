@@ -38,7 +38,11 @@ const orderBook = createSlice({
               break;
             }
 
-            if (currentPrice > newPrice) {
+            if (
+              type === "bids"
+                ? currentPrice > newPrice // desc
+                : newPrice > currentPrice // asc
+            ) {
               lowestIndex = midIndex + 1;
             } else {
               highestIndex = midIndex;

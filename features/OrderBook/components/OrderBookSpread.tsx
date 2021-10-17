@@ -1,16 +1,10 @@
 import { useSelector } from "../hooks/useStore";
 import { formatFloat } from "../lib/formatter";
 import { selectSpread, selectSpreadPercentage } from "../selectors";
-import { Sort } from "../types";
 
-type Props = {
-  bidsSort: Sort;
-  asksSort: Sort;
-};
-
-function OrderBookSpread(props: Props) {
-  const spread = useSelector((state) => selectSpread(state, props));
-  const percent = useSelector((state) => selectSpreadPercentage(state, props));
+function OrderBookSpread() {
+  const spread = useSelector((state) => selectSpread(state));
+  const percent = useSelector((state) => selectSpreadPercentage(state));
 
   if (spread === null || percent === null) {
     return <div style={{ minHeight: 56 }} />;
