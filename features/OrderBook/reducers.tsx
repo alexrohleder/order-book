@@ -7,6 +7,7 @@ export const initialState: State = {
   asks: [],
   productId: "PI_XBTUSD",
   socketState: "DISCONNECTED",
+  socketStateReason: "",
 };
 
 const orderBook = createSlice({
@@ -58,6 +59,7 @@ const orderBook = createSlice({
         asks: patch("asks"),
         productId: state.productId,
         socketState: state.socketState,
+        socketStateReason: state.socketStateReason,
       };
     },
 
@@ -66,16 +68,19 @@ const orderBook = createSlice({
         state.productId === "PI_XBTUSD" ? "PI_ETHUSD" : "PI_XBTUSD";
     },
 
-    disconnectedSocket(state) {
+    disconnectedSocket(state, action: PayloadAction<{ reason: string }>) {
       state.socketState = "DISCONNECTED";
+      state.socketStateReason = action.payload.reason;
     },
 
     connectingSocket(state) {
       state.socketState = "CONNECTING";
+      state.socketStateReason = "";
     },
 
     connectedSocket(state) {
       state.socketState = "CONNECTED";
+      state.socketStateReason = "";
     },
 
     resetDeltas(state) {

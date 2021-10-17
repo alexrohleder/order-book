@@ -1,5 +1,4 @@
 import { expectSaga, testSaga } from "redux-saga-test-plan";
-import * as matchers from "redux-saga-test-plan/matchers";
 import { createSocketChannel } from "./channels";
 import { SocketClosedByServer } from "./lib/errors";
 import reducers, {
@@ -74,13 +73,12 @@ describe("In the OrderBook sagas", () => {
     });
 
     it("should dispatch disconnectedSocket if the socket gets closed by the server", () => {
-      const ctx = mockSagaContext({
-        socketChannel: mockChannel([new SocketClosedByServer()]),
-      });
+      const error = new SocketClosedByServer();
+      const ctx = mockSagaContext({ socketChannel: mockChannel([error]) });
 
       return expectSaga(handleConnectingSocket, ctx)
         .withReducer(reducers)
-        .put(disconnectedSocket())
+        .put(disconnectedSocket({ reason: error.message }))
         .silentRun();
     });
   });
@@ -157,7 +155,7 @@ describe("In the OrderBook sagas", () => {
     it("should reset socket connection", () => {
       return expectSaga(handleProductChange)
         .withReducer(reducers)
-        .putResolve(disconnectedSocket())
+        .putResolve(disconnectedSocket({ reason: "Switching products..." }))
         .putResolve(connectingSocket())
         .silentRun();
     });

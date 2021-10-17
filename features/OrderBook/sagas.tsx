@@ -14,6 +14,7 @@ import {
   createSocketChannel,
   SocketEvent,
 } from "./channels";
+import { SocketChannelError } from "./lib/errors";
 import {
   connectedSocket,
   connectingSocket,
@@ -29,7 +30,11 @@ export function* disconnectOnBrowserEvents() {
 
   while (true) {
     yield take(browserChannel);
-    yield put(disconnectedSocket());
+    yield put(
+      disconnectedSocket({
+        reason: "We pause the connection to save your bandwidth 😊",
+      })
+    );
   }
 }
 
@@ -52,11 +57,14 @@ export function* handleConnectingSocket(ctx: SagaContext) {
       yield put(connectedSocket());
     }
   } catch (error) {
-    if (process.env.NODE_ENV !== "test") {
-      console.error("handle connecting socket failed", error); // todo: dispatch user notification
-    }
-
-    yield put(disconnectedSocket());
+    yield put(
+      disconnectedSocket({
+        reason:
+          error instanceof SocketChannelError
+            ? error.message
+            : "Unable to connect to the server",
+      })
+    );
   }
 }
 
@@ -91,11 +99,20 @@ export function* handleConnectedSocket(ctx: SagaContext) {
       yield call(delayNextDispatch, startedExecutingAt);
     }
   } catch (error) {
-    if (process.env.NODE_ENV !== "test") {
-      console.error("handle connected socket failed", error); // todo: dispatch user notification
+    if (error instanceof SocketChannelError) {
+      yield put(
+        disconnectedSocket({
+          reason: error.message,
+        })
+      );
+    } else {
+      yield put(
+        disconnectedSocket({
+          // todo: something wrong with our code, let us know and maybe retry automatically
+          reason: "Oops, something went wrong... Try reconnecting 😞",
+        })
+      );
     }
-
-    yield put(disconnectedSocket());
   }
 }
 
@@ -105,7 +122,7 @@ export function* handleDisconnectedSocket(ctx: SagaContext) {
 }
 
 export function* handleProductChange() {
-  yield putResolve(disconnectedSocket());
+  yield putResolve(disconnectedSocket({ reason: "Switching products..." }));
   yield putResolve(resetDeltas());
   yield putResolve(connectingSocket());
 }

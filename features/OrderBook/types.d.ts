@@ -24,6 +24,7 @@ export type State = {
   asks: Delta[];
   productId: ProductId;
   socketState: SocketState;
+  socketStateReason: string;
 };
 
 export type SagaContext = {

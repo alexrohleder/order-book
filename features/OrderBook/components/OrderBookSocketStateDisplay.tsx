@@ -6,6 +6,7 @@ type Props = {
 
 function OrderBookSocketStateDisplay(props: Props) {
   const socketState = useSelector((state) => state.socketState);
+  const socketStateReason = useSelector((state) => state.socketStateReason);
 
   if (socketState === "CONNECTING") {
     return (
@@ -16,7 +17,11 @@ function OrderBookSocketStateDisplay(props: Props) {
   }
 
   if (socketState === "DISCONNECTED") {
-    return <div className="flex-1 flex opacity-50">{props.children}</div>;
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        {socketStateReason}
+      </div>
+    );
   }
 
   return props.children;
