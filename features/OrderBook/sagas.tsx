@@ -14,7 +14,8 @@ import {
   createSocketChannel,
   SocketEvent,
 } from "./channels";
-import { SocketChannelError } from "./lib/errors";
+import SocketStateReasons from "./lib/enums/SocketStateReasons";
+import { reportError, SocketUnexpectedResponseError } from "./lib/errors";
 import {
   connectedSocket,
   connectingSocket,
@@ -25,14 +26,27 @@ import {
 } from "./reducers";
 import { SagaContext, SocketMessage, State } from "./types";
 
-export function* disconnectOnBrowserEvents() {
-  const browserChannel = createBrowserChannel();
+export function* disconnectOnBrowserEvents(
+  defaultBrowserChannel?: ReturnType<typeof createBrowserChannel>
+) {
+  try {
+    const browserChannel = defaultBrowserChannel ?? createBrowserChannel();
 
-  while (true) {
-    yield take(browserChannel);
+    while (true) {
+      yield take(browserChannel);
+
+      yield put(
+        disconnectedSocket({
+          reason: SocketStateReasons.SAVE_BANDWIDTH,
+        })
+      );
+    }
+  } catch (error) {
+    reportError(error);
+
     yield put(
       disconnectedSocket({
-        reason: "We pause the connection to save your bandwidth 😊",
+        reason: SocketStateReasons.UNKNOWN,
       })
     );
   }
@@ -53,16 +67,17 @@ export function* handleConnectingSocket(ctx: SagaContext) {
 
     const message: SocketEvent = yield take(ctx.socketChannel!);
 
-    if (message.type === "connection-established") {
-      yield put(connectedSocket());
+    if (message.type !== "connection-established") {
+      throw new SocketUnexpectedResponseError();
     }
+
+    yield put(connectedSocket());
   } catch (error) {
+    reportError(error);
+
     yield put(
       disconnectedSocket({
-        reason:
-          error instanceof SocketChannelError
-            ? error.message
-            : "Unable to connect to the server",
+        reason: SocketStateReasons.BAD_CONNECTION,
       })
     );
   }
@@ -99,20 +114,13 @@ export function* handleConnectedSocket(ctx: SagaContext) {
       yield call(delayNextDispatch, startedExecutingAt);
     }
   } catch (error) {
-    if (error instanceof SocketChannelError) {
-      yield put(
-        disconnectedSocket({
-          reason: error.message,
-        })
-      );
-    } else {
-      yield put(
-        disconnectedSocket({
-          // todo: something wrong with our code, let us know and maybe retry automatically
-          reason: "Oops, something went wrong... Try reconnecting 😞",
-        })
-      );
-    }
+    reportError(error);
+
+    yield put(
+      disconnectedSocket({
+        reason: SocketStateReasons.UNKNOWN,
+      })
+    );
   }
 }
 
@@ -122,7 +130,12 @@ export function* handleDisconnectedSocket(ctx: SagaContext) {
 }
 
 export function* handleProductChange() {
-  yield putResolve(disconnectedSocket({ reason: "Switching products..." }));
+  yield putResolve(
+    disconnectedSocket({
+      reason: SocketStateReasons.SWITCHING_PRODUCTS,
+    })
+  );
+
   yield putResolve(resetDeltas());
   yield putResolve(connectingSocket());
 }

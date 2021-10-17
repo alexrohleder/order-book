@@ -1,6 +1,7 @@
 import { original } from "immer";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Delta, SocketMessage, State } from "./types";
+import SocketStateReasons from "./lib/enums/SocketStateReasons";
 
 export const initialState: State = {
   bids: [],
@@ -68,7 +69,10 @@ const orderBook = createSlice({
         state.productId === "PI_XBTUSD" ? "PI_ETHUSD" : "PI_XBTUSD";
     },
 
-    disconnectedSocket(state, action: PayloadAction<{ reason: string }>) {
+    disconnectedSocket(
+      state,
+      action: PayloadAction<{ reason: SocketStateReasons }>
+    ) {
       state.socketState = "DISCONNECTED";
       state.socketStateReason = action.payload.reason;
     },

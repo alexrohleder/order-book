@@ -1,4 +1,5 @@
 import { createSocketChannel } from "./channels";
+import SocketStateReasons from "./lib/enums/SocketStateReasons";
 
 export type Orientation = "VERTICAL" | "HORIZONTAL";
 
@@ -24,7 +25,7 @@ export type State = {
   asks: Delta[];
   productId: ProductId;
   socketState: SocketState;
-  socketStateReason: string;
+  socketStateReason: SocketStateReasons | "";
 };
 
 export type SagaContext = {

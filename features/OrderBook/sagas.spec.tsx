@@ -1,5 +1,6 @@
 import { expectSaga, testSaga } from "redux-saga-test-plan";
 import { createSocketChannel } from "./channels";
+import SocketStateReasons from "./lib/enums/SocketStateReasons";
 import { SocketClosedByServer } from "./lib/errors";
 import reducers, {
   receivedDeltas,
@@ -14,6 +15,7 @@ import rootSaga, {
   handleProductChange,
   handleConnectedSocket,
   handleConnectingSocket,
+  disconnectOnBrowserEvents,
 } from "./sagas";
 import mockChannel from "./__mocks__/mockChannel";
 import mockSagaContext from "./__mocks__/mockSagaContext";
@@ -78,7 +80,7 @@ describe("In the OrderBook sagas", () => {
 
       return expectSaga(handleConnectingSocket, ctx)
         .withReducer(reducers)
-        .put(disconnectedSocket({ reason: error.message }))
+        .put(disconnectedSocket({ reason: SocketStateReasons.BAD_CONNECTION }))
         .silentRun();
     });
   });
@@ -155,7 +157,11 @@ describe("In the OrderBook sagas", () => {
     it("should reset socket connection", () => {
       return expectSaga(handleProductChange)
         .withReducer(reducers)
-        .putResolve(disconnectedSocket({ reason: "Switching products..." }))
+        .putResolve(
+          disconnectedSocket({
+            reason: SocketStateReasons.SWITCHING_PRODUCTS,
+          })
+        )
         .putResolve(connectingSocket())
         .silentRun();
     });
@@ -166,6 +172,22 @@ describe("In the OrderBook sagas", () => {
         .putResolve(resetDeltas())
         .putResolve(connectingSocket())
         .silentRun();
+    });
+  });
+
+  describe("The disconnectOnBrowserEvents", () => {
+    it("should disconnect the socket when browser emits and event", () => {
+      const channel = mockChannel();
+
+      testSaga(disconnectOnBrowserEvents, channel)
+        .next()
+        .take(channel)
+        .next()
+        .put(
+          disconnectedSocket({
+            reason: SocketStateReasons.SAVE_BANDWIDTH,
+          })
+        );
     });
   });
 });
