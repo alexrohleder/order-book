@@ -6,6 +6,7 @@ import OrderBookFooter from "./OrderBookFooter";
 import OrderBookSideHeader from "./OrderBookSideHeader";
 import OrderBookSpread from "./OrderBookSpread";
 import OrderBookSide from "./OrderBookSide";
+import OrderBookSocketStateDisplay from "./OrderBookSocketStateDisplay";
 
 type Props = {
   orientation: Orientation;
@@ -22,11 +23,13 @@ function OrderBook(props: Props) {
             Order Book
           </div>
           <div className="flex-1 flex flex-col overflow-hidden">
-            <OrderBookSideHeader dir="rtl">
-              <OrderBookSide type="asks" sort="desc" dir="rtl" />
-              <OrderBookSpread bidsSort="desc" asksSort="desc" />
-              <OrderBookSide type="bids" sort="desc" dir="rtl" />
-            </OrderBookSideHeader>
+            <OrderBookSocketStateDisplay>
+              <OrderBookSideHeader dir="rtl">
+                <OrderBookSide type="asks" sort="desc" dir="rtl" />
+                <OrderBookSpread bidsSort="desc" asksSort="desc" />
+                <OrderBookSide type="bids" sort="desc" dir="rtl" />
+              </OrderBookSideHeader>
+            </OrderBookSocketStateDisplay>
           </div>
           <div className="flex items-center justify-center h-14">
             <OrderBookFooter />
@@ -44,12 +47,14 @@ function OrderBook(props: Props) {
           <OrderBookSpread bidsSort="desc" asksSort="asc" />
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <OrderBookSideHeader dir="ltr">
-            <OrderBookSide type="bids" sort="desc" dir="ltr" />
-          </OrderBookSideHeader>
-          <OrderBookSideHeader dir="rtl">
-            <OrderBookSide type="asks" sort="asc" dir="rtl" />
-          </OrderBookSideHeader>
+          <OrderBookSocketStateDisplay>
+            <OrderBookSideHeader dir="ltr">
+              <OrderBookSide type="bids" sort="desc" dir="ltr" />
+            </OrderBookSideHeader>
+            <OrderBookSideHeader dir="rtl">
+              <OrderBookSide type="asks" sort="asc" dir="rtl" />
+            </OrderBookSideHeader>
+          </OrderBookSocketStateDisplay>
         </div>
         <div className="flex items-center justify-center h-14">
           <OrderBookFooter />
