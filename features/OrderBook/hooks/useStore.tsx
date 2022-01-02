@@ -16,8 +16,8 @@ function useStoreSaga() {
     () =>
       typeof window === "object"
         ? createSagaMiddleware({
-            onError(error, errorInfo) {
-              setError({ error, errorInfo });
+            onError(err, errorInfo) {
+              setError({ error: err, errorInfo });
             },
           })
         : null,
@@ -68,14 +68,12 @@ function useStore() {
       }
     }
 
-    const store = configureStore({
+    return configureStore({
       devTools: false,
       reducer,
       middleware,
       enhancers,
     });
-
-    return store;
   }, [sagaMiddleware]);
 }
 

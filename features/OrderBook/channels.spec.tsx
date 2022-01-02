@@ -12,7 +12,8 @@ describe("In the OrderBook channels", () => {
       server = new WS("ws://localhost:6000");
 
       createSocket = () => {
-        return (client = new WebSocket("ws://localhost:6000"));
+        client = new WebSocket("ws://localhost:6000");
+        return client;
       };
     });
 

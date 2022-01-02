@@ -122,7 +122,7 @@ export function* handleConnectedSocket(ctx: SagaContext) {
   }
 }
 
-export function* handleDisconnectedSocket(ctx: SagaContext) {
+export function handleDisconnectedSocket(ctx: SagaContext) {
   ctx.socketChannel?.close();
   ctx.socketChannel = null;
 }
