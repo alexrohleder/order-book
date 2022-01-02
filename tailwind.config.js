@@ -1,4 +1,3 @@
 module.exports = {
-  mode: "jit",
-  purge: ["./pages/**/*.{js,ts,jsx,tsx}", "./features/**/*.{js,ts,jsx,tsx}"],
+  content: ["./pages/**/*.tsx", "./features/**/*.tsx"],
 };

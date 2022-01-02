@@ -1,6 +1,6 @@
-# Orderbook
+# Cryptocurrency Orderbook
 
-This is an awesome orderbook built with NextJS, Tailwind and Redux Sagas!
+This is an awesome cryptocurrency orderbook built with NextJS, Tailwind and Redux Sagas!
 
 ## Getting Started
 

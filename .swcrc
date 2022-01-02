@@ -1,0 +1,5 @@
+{
+  "env": {
+    "targets": "last 1 version, > 5%, not dead"
+  }
+}
