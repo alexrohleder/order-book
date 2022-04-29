@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 import { DeltaType, State } from "./types";
 
 export const selectTotals = createSelector(
-  (state: State, props: { type: DeltaType }) => state[props.type],
+  (state: State, props: { type: DeltaType }) => state.orderBook[props.type],
   (deltas) => {
     let totals: number[] = [];
     let lastSize = 0;
@@ -29,8 +29,8 @@ export function selectPrice(
   state: State,
   props: { type: DeltaType; index: number }
 ) {
-  return state[props.type][props.index]
-    ? state[props.type][props.index][0]
+  return state.orderBook[props.type][props.index]
+    ? state.orderBook[props.type][props.index][0]
     : null;
 }
 
@@ -38,8 +38,8 @@ export function selectSize(
   state: State,
   props: { type: DeltaType; index: number }
 ) {
-  return state[props.type][props.index]
-    ? state[props.type][props.index][1]
+  return state.orderBook[props.type][props.index]
+    ? state.orderBook[props.type][props.index][1]
     : null;
 }
 
@@ -62,8 +62,8 @@ export function selectLevelDepth(
 }
 
 export function selectSpread(state: State) {
-  return state.asks.length && state.bids.length
-    ? state.asks[0][0] - state.bids[0][0]
+  return state.orderBook.asks.length && state.orderBook.bids.length
+    ? state.orderBook.asks[0][0] - state.orderBook.bids[0][0]
     : null;
 }
 
@@ -74,5 +74,5 @@ export function selectSpreadPercentage(state: State) {
     return null;
   }
 
-  return (spread / state.asks[0][0]) * 100;
+  return (spread / state.orderBook.asks[0][0]) * 100;
 }

@@ -5,8 +5,10 @@ type Props = {
 };
 
 function OrderBookSocketStateDisplay(props: Props) {
-  const socketState = useSelector((state) => state.socketState);
-  const socketStateReason = useSelector((state) => state.socketStateReason);
+  const socketState = useSelector((state) => state.orderBook.socketState);
+  const socketStateReason = useSelector(
+    (state) => state.orderBook.socketStateReason
+  );
 
   if (socketState === "CONNECTING") {
     return (

@@ -4,7 +4,7 @@ import { connectingSocket, switchedProducts } from "../reducers";
 
 function OrderBookFooter() {
   const dispatch = useDispatch();
-  const socketState = useSelector((s) => s.socketState);
+  const socketState = useSelector((s) => s.orderBook.socketState);
 
   if (socketState === "DISCONNECTED") {
     return (

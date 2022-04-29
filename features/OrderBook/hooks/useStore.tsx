@@ -1,4 +1,4 @@
-import { Middleware, StoreEnhancer } from "redux";
+import { combineReducers, Middleware, StoreEnhancer } from "redux";
 import createSagaMiddleware from "redux-saga";
 import { useEffect, useMemo, useState } from "react";
 import { configureStore } from "@reduxjs/toolkit";
@@ -68,9 +68,14 @@ function useStore() {
       }
     }
 
+    const rootReducer = combineReducers({
+      orderBook: reducer,
+      another: () => 1,
+    });
+
     return configureStore({
       devTools: false,
-      reducer,
+      reducer: rootReducer,
       middleware,
       enhancers,
     });

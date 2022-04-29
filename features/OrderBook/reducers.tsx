@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Delta, SocketMessage, State } from "./types";
 import SocketStateReasons from "./lib/enums/SocketStateReasons";
 
-export const initialState: State = {
+export const initialState: State["orderBook"] = {
   bids: [],
   asks: [],
   productId: "PI_XBTUSD",

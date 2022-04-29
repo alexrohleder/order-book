@@ -57,7 +57,7 @@ export function* delayNextDispatch(startedExecutingBatchAt: number) {
 
 export function* handleConnectingSocket(ctx: SagaContext) {
   try {
-    const productId = yield select((state: State) => state.productId);
+    const productId = yield select((state: State) => state.orderBook.productId);
 
     if (ctx.socketChannel === null) {
       ctx.socketChannel = yield call(createSocketChannel, productId);

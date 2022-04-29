@@ -17,11 +17,14 @@ export type SocketMessage = {
 };
 
 export type State = {
-  bids: Delta[];
-  asks: Delta[];
-  productId: ProductId;
-  socketState: SocketState;
-  socketStateReason: SocketStateReasons | "";
+  orderBook: {
+    bids: Delta[];
+    asks: Delta[];
+    productId: ProductId;
+    socketState: SocketState;
+    socketStateReason: SocketStateReasons | "";
+  };
+  another: 1;
 };
 
 export type SagaContext = {
